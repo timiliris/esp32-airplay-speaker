@@ -369,6 +369,31 @@ menu "Airplay ESP Configuration"
                 advertise et=0 (no encryption). If iOS refuses to connect,
                 audio encryption support may need to be added.
 
+        config AIRPLAY_ALLOW_LEGACY_RAOP
+            bool "Allow legacy RAOP streaming alongside AirPlay 2"
+            depends on !AIRPLAY_FORCE_V1
+            default n
+            help
+                Keep the device in AirPlay 2 mode (HomeKit pairing and the
+                bplist SETUP path stay fully functional for Apple devices)
+                but ALSO accept a classic RAOP SETUP — i.e. a SETUP that
+                carries an RTSP "Transport:" header instead of an AirPlay 2
+                binary-plist "streams" body.
+
+                This lets non-Apple senders that speak classic RAOP (for
+                example philippe44's cliraop, or a desktop app built on it)
+                stream unencrypted realtime audio (et=0) to the speaker,
+                while iPhones / Macs continue to use full AirPlay 2.
+
+                The Apple AirPlay 2 path is untouched: real iOS clients send
+                a bplist SETUP with a streams array and never take the
+                Transport branch, so enabling this has no effect on them.
+
+                Security note: the legacy RAOP path is unauthenticated and
+                unencrypted. Only enable it on a trusted LAN — any device on
+                the network can push audio to the speaker. Leave it disabled
+                (default) if you only ever stream from Apple devices.
+
         config AIRPLAY_TIMING_THRESHOLD_MS
             int "Early/late timing threshold for buffered streams (ms)"
             default 10
