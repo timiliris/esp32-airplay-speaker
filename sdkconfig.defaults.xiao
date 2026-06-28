@@ -1,0 +1,15 @@
+# XIAO ESP32-S3 — I2S pin mapping for the MAX98357A
+# Overrides the dev-board pins from sdkconfig.defaults.esp32s3.
+#   D0 = GPIO1 -> BCLK
+#   D1 = GPIO2 -> LRC (WS)
+#   D3 = GPIO4 -> DIN (DO)
+# MCLK (SCK) stays on its default pad (GPIO8 / D9, left unconnected — the
+# MAX98357A generates its own clock from BCLK and ignores MCLK).
+# The GPIO-driven "GND helper" is disabled; use a real GND pad instead.
+# Amp SD/enable = GPIO5 (D4) is set at runtime via the "Protection & Ampli" card.
+CONFIG_I2S_BCK_IO=1
+CONFIG_I2S_WS_IO=2
+CONFIG_I2S_DO_IO=4
+CONFIG_I2S_GND_IO=-1
+# MCLK disabled (MAX98357A doesn't need it) — frees GPIO8/D9 for the ARGB strip.
+CONFIG_I2S_SCK_IO=-1

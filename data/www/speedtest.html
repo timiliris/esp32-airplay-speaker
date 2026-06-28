@@ -1,0 +1,181 @@
+<!DOCTYPE html><html lang='fr'><head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1,viewport-fit=cover'>
+<meta name='theme-color' content='#08080a'>
+<title>Test de débit</title>
+<style>
+:root{--bg:#08080a;--bar:rgba(20,20,24,.72);--card:rgba(255,255,255,.055);--card-hi:rgba(255,255,255,.085);
+  --hair:rgba(255,255,255,.09);--txt:#f5f5f7;--txt2:rgba(235,235,245,.6);--txt3:rgba(235,235,245,.3);--blue:#0a84ff;--r:22px}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--txt);
+  min-height:100vh;-webkit-font-smoothing:antialiased;letter-spacing:-.01em;position:relative;overflow-x:hidden;
+  padding-bottom:calc(40px + env(safe-area-inset-bottom))}
+body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(115% 70% at 50% -18%,rgba(10,132,255,.2),transparent 56%),radial-gradient(80% 55% at 84% 8%,rgba(100,210,255,.09),transparent 55%)}
+.bar{display:flex;align-items:center;gap:12px;padding:max(12px,env(safe-area-inset-top)) 16px 12px;
+  background:var(--bar);backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);
+  border-bottom:.5px solid var(--hair);position:sticky;top:0;z-index:2;margin-bottom:22px}
+.back{color:var(--blue);text-decoration:none;font-size:16px;font-weight:500}.back:active{opacity:.5}
+.bar h1{font-size:17px;font-weight:600}
+.wrap{max-width:520px;margin:0 auto;padding:0 18px}
+.grp{margin-bottom:24px;animation:rise .6s cubic-bezier(.22,1,.36,1) both}
+.grp:nth-child(2){animation-delay:.05s}.grp:nth-child(3){animation-delay:.1s}.grp:nth-child(4){animation-delay:.15s}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.grp>h2{font-size:13px;font-weight:600;color:var(--txt3);text-transform:uppercase;letter-spacing:.06em;margin:0 4px 9px}
+.card{background:var(--card);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);
+  border:1px solid var(--hair);border-radius:var(--r);padding:18px;
+  box-shadow:0 1px 0 rgba(255,255,255,.04) inset,0 14px 40px -20px rgba(0,0,0,.7)}
+.row{display:flex;justify-content:space-between;align-items:center;padding:9px 0;font-size:15px;border-bottom:.5px solid var(--hair)}
+.row:last-of-type{border-bottom:none}
+.row .lbl{color:var(--txt2)}
+.row .val{font-weight:600;font-variant-numeric:tabular-nums}
+.readout{text-align:center;padding:6px 0 14px}
+.big{font-family:ui-rounded,-apple-system,system-ui;font-size:46px;font-weight:700;color:var(--txt);font-variant-numeric:tabular-nums;line-height:1}
+.unit{font-size:15px;color:var(--txt3);margin-left:6px;font-weight:600}
+.btn{padding:13px 18px;border:none;border-radius:14px;font-size:16px;font-weight:600;font-family:inherit;cursor:pointer;
+  background:var(--blue);color:#fff;width:100%;margin-top:14px;transition:transform .12s,filter .2s,opacity .2s}
+.btn:active{transform:scale(.975);filter:brightness(.92)}
+.btn:disabled{opacity:.4;pointer-events:none}
+.lab{font-size:12px;color:var(--txt3);text-transform:uppercase;letter-spacing:.05em;margin:14px 0 7px 2px;display:block}
+select{width:100%;padding:13px 15px;background:rgba(0,0,0,.28);border:1px solid var(--hair);border-radius:13px;
+  color:var(--txt);font-size:16px;font-family:inherit;-webkit-appearance:none;appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none' stroke='%23888' stroke-width='1.6'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 15px center}
+select:focus{outline:none;border-color:var(--blue)}
+.bar2{height:8px;background:rgba(255,255,255,.12);border-radius:99px;overflow:hidden;margin-top:14px}
+.bar2>div{height:100%;background:var(--blue);width:0%;transition:width .1s;border-radius:99px}
+.log{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:11.5px;color:var(--txt2);max-height:150px;
+  overflow-y:auto;padding:12px 14px;background:rgba(0,0,0,.28);border-radius:13px;white-space:pre-wrap;line-height:1.6}
+</style></head><body>
+<header class='bar'><a class='back' href='/'>‹ AirPlay</a><h1>Test de débit</h1></header>
+<div class='wrap'>
+
+<div class='grp'><h2>Latence (ping)</h2><div class='card'>
+  <div class='row'><span class='lbl'>Échantillons</span><span class='val' id='p-n'>0</span></div>
+  <div class='row'><span class='lbl'>Min</span><span class='val' id='p-min'>—</span></div>
+  <div class='row'><span class='lbl'>Moyenne</span><span class='val' id='p-avg'>—</span></div>
+  <div class='row'><span class='lbl'>Max</span><span class='val' id='p-max'>—</span></div>
+  <div class='row'><span class='lbl'>Gigue (écart-type)</span><span class='val' id='p-jit'>—</span></div>
+  <button class='btn' id='b-ping' onclick='runPing()'>Lancer 20 pings</button>
+</div></div>
+
+<div class='grp'><h2>Téléchargement (carte → navigateur)</h2><div class='card'>
+  <div class='readout'><span class='big' id='dl-mbps'>0.00</span><span class='unit'>Mbit/s</span></div>
+  <div class='row'><span class='lbl'>Octets</span><span class='val' id='dl-bytes'>—</span></div>
+  <div class='row'><span class='lbl'>Durée</span><span class='val' id='dl-time'>—</span></div>
+  <div class='bar2'><div id='dl-bar'></div></div>
+  <label class='lab'>Taille des données</label>
+  <select id='dl-size'>
+    <option value='262144'>256 Ko</option>
+    <option value='1048576' selected>1 Mo</option>
+    <option value='4194304'>4 Mo</option>
+    <option value='8388608'>8 Mo</option>
+  </select>
+  <button class='btn' id='b-dl' onclick='runDownload()'>Démarrer le téléchargement</button>
+</div></div>
+
+<div class='grp'><h2>Envoi (navigateur → carte)</h2><div class='card'>
+  <div class='readout'><span class='big' id='ul-mbps'>0.00</span><span class='unit'>Mbit/s</span></div>
+  <div class='row'><span class='lbl'>Octets</span><span class='val' id='ul-bytes'>—</span></div>
+  <div class='row'><span class='lbl'>Durée</span><span class='val' id='ul-time'>—</span></div>
+  <div class='bar2'><div id='ul-bar'></div></div>
+  <label class='lab'>Taille des données</label>
+  <select id='ul-size'>
+    <option value='262144'>256 Ko</option>
+    <option value='1048576' selected>1 Mo</option>
+    <option value='4194304'>4 Mo</option>
+  </select>
+  <button class='btn' id='b-ul' onclick='runUpload()'>Démarrer l'envoi</button>
+</div></div>
+
+<div class='grp'><h2>Journal</h2><div class='card'>
+  <div class='log' id='log'></div>
+</div></div>
+
+</div>
+<script>
+const $ = id => document.getElementById(id);
+function log(s){const l=$('log');l.textContent+=s+'\n';l.scrollTop=l.scrollHeight;}
+function fmtBytes(n){if(n>=1048576)return (n/1048576).toFixed(2)+' MB';if(n>=1024)return (n/1024).toFixed(1)+' KB';return n+' B';}
+function fmtMs(ms){return ms.toFixed(2)+' ms';}
+
+async function runPing(){
+  const btn=$('b-ping');btn.disabled=true;
+  const N=20;const samples=[];
+  $('p-n').textContent='0';
+  for(let i=0;i<N;i++){
+    const t0=performance.now();
+    try{
+      await fetch('/api/speedtest/ping?'+Math.random(),{cache:'no-store'});
+      const dt=performance.now()-t0;
+      samples.push(dt);
+      $('p-n').textContent=samples.length;
+    }catch(e){log('ping err: '+e);break;}
+    await new Promise(r=>setTimeout(r,50));
+  }
+  if(samples.length){
+    const mn=Math.min(...samples),mx=Math.max(...samples);
+    const avg=samples.reduce((a,b)=>a+b,0)/samples.length;
+    const v=samples.reduce((a,b)=>a+(b-avg)*(b-avg),0)/samples.length;
+    const sd=Math.sqrt(v);
+    $('p-min').textContent=fmtMs(mn);
+    $('p-max').textContent=fmtMs(mx);
+    $('p-avg').textContent=fmtMs(avg);
+    $('p-jit').textContent=fmtMs(sd);
+    log(`ping n=${samples.length} min=${mn.toFixed(2)} avg=${avg.toFixed(2)} max=${mx.toFixed(2)} sd=${sd.toFixed(2)} ms`);
+  }
+  btn.disabled=false;
+}
+
+async function runDownload(){
+  const btn=$('b-dl');btn.disabled=true;
+  const bytes=parseInt($('dl-size').value);
+  $('dl-bytes').textContent=fmtBytes(bytes);
+  $('dl-mbps').textContent='0.00';
+  $('dl-bar').style.width='0%';
+  const t0=performance.now();
+  try{
+    const resp=await fetch('/api/speedtest/download?bytes='+bytes+'&_='+Math.random(),{cache:'no-store'});
+    if(!resp.ok){throw new Error('HTTP '+resp.status);}
+    const reader=resp.body.getReader();
+    let got=0;
+    while(true){
+      const {done,value}=await reader.read();
+      if(done)break;
+      got+=value.length;
+      $('dl-bar').style.width=(100*got/bytes).toFixed(1)+'%';
+      const dt=(performance.now()-t0)/1000;
+      if(dt>0)$('dl-mbps').textContent=((got*8/1e6)/dt).toFixed(2);
+    }
+    const dt=(performance.now()-t0)/1000;
+    $('dl-time').textContent=(dt*1000).toFixed(0)+' ms';
+    $('dl-mbps').textContent=((got*8/1e6)/dt).toFixed(2);
+    log(`download ${fmtBytes(got)} in ${(dt*1000).toFixed(0)} ms = ${((got*8/1e6)/dt).toFixed(2)} Mbit/s`);
+  }catch(e){log('dl err: '+e.message);}
+  btn.disabled=false;
+}
+
+async function runUpload(){
+  const btn=$('b-ul');btn.disabled=true;
+  const bytes=parseInt($('ul-size').value);
+  $('ul-bytes').textContent=fmtBytes(bytes);
+  $('ul-mbps').textContent='0.00';
+  $('ul-bar').style.width='0%';
+  // Pre-build payload (random data, in 64KB chunks to limit memory spike)
+  const payload=new Uint8Array(bytes);
+  for(let i=0;i<bytes;i++){payload[i]=(((i*2654435761)>>>0)^(i>>>3))&0xff|1;}
+  const t0=performance.now();
+  try{
+    const resp=await fetch('/api/speedtest/upload',{method:'POST',body:payload,headers:{'Content-Type':'application/octet-stream'}});
+    if(!resp.ok){throw new Error('HTTP '+resp.status);}
+    const dt=(performance.now()-t0)/1000;
+    const txt=await resp.text();
+    $('ul-bar').style.width='100%';
+    $('ul-time').textContent=(dt*1000).toFixed(0)+' ms';
+    $('ul-mbps').textContent=((bytes*8/1e6)/dt).toFixed(2);
+    log(`upload ${fmtBytes(bytes)} in ${(dt*1000).toFixed(0)} ms = ${((bytes*8/1e6)/dt).toFixed(2)} Mbit/s (server: ${txt.trim()})`);
+  }catch(e){log('ul err: '+e.message);}
+  btn.disabled=false;
+}
+</script>
+</body></html>

@@ -1,0 +1,28 @@
+ESP32 AirPlay Speaker
+=====================
+
+This project is a derivative work (fork) of:
+
+  airplay-esp32
+  Copyright (c) 2026 Rémi Bouteiller
+  https://github.com/rbouteiller/airplay-esp32
+  Licensed under the Non-Commercial License (see LICENSE).
+
+The core AirPlay 2 receiver, RTSP/RAOP stack, HAP pairing and audio pipeline
+originate from that project and remain © Rémi Bouteiller. This fork adds:
+a redesigned web UI, software audio DSP (tone EQ + 4th-order high-pass,
+anti-clipping limiter, output-channel/mono downmix), speaker protection /
+amplifier standby, an addressable WS2812 LED-strip effects engine, Home
+Assistant MQTT discovery, and a Seeed XIAO ESP32-S3 build target.
+
+The original Non-Commercial License applies to the whole work: use, copy,
+modify and distribute for NON-COMMERCIAL purposes only. For commercial
+licensing, contact the upstream author (bouteiller.remi@gmail.com).
+
+Third-party components (under their own licenses):
+  - u8g2            — BSD-2-Clause — https://github.com/olikraus/u8g2 (git submodule)
+  - audio-resampler, boards, dac/dac_tas* and other components vendored from
+    or derived from the upstream project.
+
+"AirPlay" is a trademark of Apple Inc. This project is not affiliated with,
+endorsed by, or sponsored by Apple Inc.

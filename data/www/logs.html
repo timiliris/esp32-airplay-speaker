@@ -1,0 +1,90 @@
+<!DOCTYPE html><html lang='fr'><head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width,initial-scale=1,viewport-fit=cover'>
+<meta name='theme-color' content='#08080a'>
+<title>Journaux</title>
+<style>
+:root{--bg:#08080a;--bar:rgba(20,20,24,.72);--hair:rgba(255,255,255,.09);--txt:#f5f5f7;--txt2:rgba(235,235,245,.6);--blue:#0a84ff;--green:#30d158;--red:#ff453a}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{font-family:-apple-system,BlinkMacSystemFont,system-ui,sans-serif;background:var(--bg);color:var(--txt);
+  min-height:100vh;height:100vh;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;letter-spacing:-.01em;overflow:hidden}
+body::before{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;
+  background:radial-gradient(110% 60% at 50% -20%,rgba(10,132,255,.16),transparent 55%)}
+.bar{display:flex;align-items:center;gap:12px;padding:max(12px,env(safe-area-inset-top)) 16px 12px;
+  background:var(--bar);backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);
+  border-bottom:.5px solid var(--hair);position:sticky;top:0;z-index:2}
+.back{color:var(--blue);text-decoration:none;font-size:16px;font-weight:500;white-space:nowrap}
+.back:active{opacity:.5}
+.bar h1{font-size:17px;font-weight:600;flex:1}
+.dot{width:9px;height:9px;border-radius:50%;background:var(--red);flex:none;transition:background .3s}
+.dot.ok{background:var(--green);box-shadow:0 0 8px rgba(48,209,88,.6)}
+.tbtn{padding:7px 13px;border:.5px solid var(--hair);border-radius:980px;background:rgba(255,255,255,.06);
+  color:var(--txt);font-size:13px;font-weight:500;font-family:inherit;cursor:pointer;white-space:nowrap;transition:background .15s}
+.tbtn:active{background:rgba(255,255,255,.14)}
+#log{flex:1;overflow-y:auto;padding:14px 16px calc(20px + env(safe-area-inset-bottom));
+  font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:12px;line-height:1.65;
+  white-space:pre-wrap;word-break:break-all;-webkit-overflow-scrolling:touch}
+.a30{color:#6b7280}.a31{color:#ff6b63}.a32{color:#5be19a}.a33{color:#ffd60a}.a34{color:#64b5ff}.a35{color:#da9bff}.a36{color:#5ad7e0}.a37{color:#e5e5ea}
+.a90{color:#7c8290}.a91{color:#ff8a82}.a92{color:#74e89a}.a93{color:#ffe066}.a94{color:#8cc6ff}.a95{color:#e0b3ff}.a96{color:#7ce0e8}.a97{color:#fff}
+</style></head><body>
+<header class='bar'>
+<a class='back' href='/'>‹ AirPlay</a>
+<h1>Journaux</h1>
+<span id='dot' class='dot'></span>
+<button class='tbtn' onclick='clear_log()'>Effacer</button>
+<button class='tbtn' id='scroll-btn' onclick='toggle_scroll()'>Défilement : ON</button>
+</header>
+<div id='log'><div id='anchor'></div></div>
+<script>
+var log=document.getElementById('log'),dot=document.getElementById('dot'),anchor=document.getElementById('anchor'),autoScroll=true,maxLines=2000;
+function toggle_scroll(){autoScroll=!autoScroll;document.getElementById('scroll-btn').textContent='Défilement : '+(autoScroll?'ON':'OFF');}
+function clear_log(){log.innerHTML='';anchor=document.createElement('div');anchor.id='anchor';log.appendChild(anchor);}
+var ansiRe=/\x1b\[([0-9;]*)m/g;
+var ansiCls={'30':1,'31':1,'32':1,'33':1,'34':1,'35':1,'36':1,'37':1,'90':1,'91':1,'92':1,'93':1,'94':1,'95':1,'96':1,'97':1};
+var letterCls={'E':'a31','W':'a33','I':'a32','D':'a30','V':'a30'};
+function colorize(text){
+  var frag=document.createDocumentFragment();
+  text.split('\n').forEach(function(line){
+    if(!line)return;
+    var wrap=document.createElement('span');
+    var hasAnsi=ansiRe.test(line);
+    ansiRe.lastIndex=0;
+    if(hasAnsi){
+      var last=0,cls=null,m;
+      while((m=ansiRe.exec(line))!==null){
+        if(m.index>last){
+          var s=document.createElement('span');
+          if(cls)s.className=cls;
+          s.textContent=line.substring(last,m.index);
+          wrap.appendChild(s);
+        }
+        var p=m[1].split(';');cls=null;
+        for(var i=0;i<p.length;i++){if(ansiCls[p[i]])cls='a'+p[i];}
+        last=ansiRe.lastIndex;
+      }
+      if(last<line.length){
+        var s=document.createElement('span');
+        if(cls)s.className=cls;
+        s.textContent=line.substring(last);
+        wrap.appendChild(s);
+      }
+    }else{
+      var ch=line.charAt(0);
+      if(letterCls[ch])wrap.className=letterCls[ch];
+      wrap.textContent=line;
+    }
+    wrap.appendChild(document.createTextNode('\n'));
+    frag.appendChild(wrap);
+  });
+  log.insertBefore(frag,anchor);
+  while(log.childNodes.length>maxLines+1)log.removeChild(log.firstChild);
+  if(autoScroll)anchor.scrollIntoView();
+}
+function connect(){
+  var ws=new WebSocket('ws://'+location.host+'/ws/logs');
+  ws.onopen=function(){dot.classList.add('ok');};
+  ws.onclose=function(){dot.classList.remove('ok');setTimeout(connect,2000);};
+  ws.onmessage=function(e){colorize(e.data);};
+}
+connect();
+</script></body></html>
