@@ -1079,12 +1079,16 @@ static void handle_setup(int socket, rtsp_conn_t *conn,
 
   // Handle initial SETUP vs stream SETUP
   if (!request_has_streams) {
-#ifdef CONFIG_AIRPLAY_FORCE_V1
-    // AirPlay v1: SETUP has no bplist body — transport info is in the header.
-    // Check for a Transport header to distinguish from an AirPlay 2 initial
-    // SETUP (which has no streams and no Transport header).
+#if defined(CONFIG_AIRPLAY_FORCE_V1) || defined(CONFIG_AIRPLAY_ALLOW_LEGACY_RAOP)
+    // Classic RAOP (AirPlay v1) SETUP has no bplist body — transport info is
+    // in the RTSP "Transport:" header. The presence of that header cleanly
+    // distinguishes a legacy RAOP sender from an AirPlay 2 initial SETUP
+    // (which has no streams AND no Transport header, and is handled below as
+    // a bplist exchange). This branch is compiled in either when the device
+    // is forced to v1, or when CONFIG_AIRPLAY_ALLOW_LEGACY_RAOP lets a v2
+    // device additionally accept legacy senders.
     if (raw && strstr((const char *)raw, "Transport:")) {
-      ESP_LOGI(TAG, "SETUP: AirPlay v1 stream setup");
+      ESP_LOGI(TAG, "SETUP: classic RAOP stream setup");
       int64_t stream_type = 96; // RTP
       conn->stream_type = stream_type;
 
@@ -1123,7 +1127,7 @@ static void handle_setup(int socket, rtsp_conn_t *conn,
       conn->stream_active = true;
       return;
     }
-#endif // CONFIG_AIRPLAY_FORCE_V1
+#endif // CONFIG_AIRPLAY_FORCE_V1 || CONFIG_AIRPLAY_ALLOW_LEGACY_RAOP
 
     ESP_LOGI(TAG, "SETUP: Initial connection setup (no streams)");
 
