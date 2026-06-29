@@ -91,6 +91,13 @@ static void apply_config(void) {
   settings_get_protection(&lim_en, &lim_ceil, &amp_gpio, &active_high,
                           &standby_min);
 
+  // Preserve the current amp state across a live reconfigure. Otherwise saving
+  // any setting (the web/app config POST calls amp_ctrl_reconfigure) while audio
+  // is playing would mute the amp and never re-wake it — no new RTSP "playing"
+  // event arrives mid-stream, so the sound cuts and never resumes. At boot
+  // g_is_active is false, so this still starts in standby as intended.
+  bool was_active = g_is_active;
+
   cancel_standby_timer();
 
   // If the GPIO changed away from a previously configured pin, release it.
@@ -117,8 +124,11 @@ static void apply_config(void) {
   };
   gpio_config(&io);
 
-  // Start in standby (amp muted) so we never pop on boot or before playback.
-  drive_amp(false);
+  // Keep the amp in whatever state it was in: standby at boot (no pop before
+  // playback), but ACTIVE if a stream is already playing (don't cut audio on a
+  // live settings change). If it stays idle, the next RTSP idle event re-arms
+  // the standby timer.
+  drive_amp(was_active);
   ESP_LOGI(TAG, "Amp control on GPIO%d (active_%s, standby=%d min)", g_gpio,
            g_active_high ? "high" : "low", g_standby_min);
 }
