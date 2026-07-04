@@ -86,7 +86,8 @@ static uint64_t bplist_get_offset(const uint8_t *plist, size_t plist_len,
   }
   uint64_t entry_pos = offset_table_offset + scaled;
   // Need entry_pos + offset_size <= plist_len, computed overflow-safe.
-  if (entry_pos > (uint64_t)plist_len || (uint64_t)plist_len - entry_pos < offset_size) {
+  if (entry_pos > (uint64_t)plist_len ||
+      (uint64_t)plist_len - entry_pos < offset_size) {
     return UINT64_MAX;
   }
   return read_be_int(plist + entry_pos, offset_size);
@@ -412,9 +413,9 @@ static bool bplist_find_data_in_dict(const uint8_t *plist, size_t plist_len,
 
   for (size_t i = 0; i < dict_size; i++) {
     uint64_t key_idx = read_be_int(key_refs + i * ref_size, ref_size);
-    uint64_t key_offset = bplist_get_offset(
-        plist, plist_len, offset_table_offset, offset_size, num_objects,
-        key_idx);
+    uint64_t key_offset =
+        bplist_get_offset(plist, plist_len, offset_table_offset, offset_size,
+                          num_objects, key_idx);
     if (key_offset >= plist_len) {
       continue;
     }
@@ -424,9 +425,9 @@ static bool bplist_find_data_in_dict(const uint8_t *plist, size_t plist_len,
                            sizeof(found_key))) {
       if (strcmp(found_key, key) == 0) {
         uint64_t val_idx = read_be_int(val_refs + i * ref_size, ref_size);
-        uint64_t val_offset = bplist_get_offset(
-            plist, plist_len, offset_table_offset, offset_size, num_objects,
-            val_idx);
+        uint64_t val_offset =
+            bplist_get_offset(plist, plist_len, offset_table_offset,
+                              offset_size, num_objects, val_idx);
         if (val_offset >= plist_len) {
           return false;
         }
@@ -479,9 +480,9 @@ static bool bplist_find_data_recursive(const uint8_t *plist, size_t plist_len,
 
     for (size_t i = 0; i < dict_size; i++) {
       uint64_t key_idx = read_be_int(key_refs + i * ref_size, ref_size);
-      uint64_t key_offset = bplist_get_offset(
-          plist, plist_len, offset_table_offset, offset_size, num_objects,
-          key_idx);
+      uint64_t key_offset =
+          bplist_get_offset(plist, plist_len, offset_table_offset, offset_size,
+                            num_objects, key_idx);
       if (key_offset >= plist_len) {
         continue;
       }
@@ -491,9 +492,9 @@ static bool bplist_find_data_recursive(const uint8_t *plist, size_t plist_len,
                              sizeof(found_key))) {
         if (strcmp(found_key, key) == 0) {
           uint64_t val_idx = read_be_int(val_refs + i * ref_size, ref_size);
-          uint64_t val_offset = bplist_get_offset(
-              plist, plist_len, offset_table_offset, offset_size, num_objects,
-              val_idx);
+          uint64_t val_offset =
+              bplist_get_offset(plist, plist_len, offset_table_offset,
+                                offset_size, num_objects, val_idx);
           if (val_offset >= plist_len) {
             return false;
           }
@@ -527,10 +528,9 @@ static bool bplist_find_data_recursive(const uint8_t *plist, size_t plist_len,
 
     for (size_t i = 0; i < count; i++) {
       uint64_t idx = read_be_int(plist + pos + i * ref_size, ref_size);
-      if (bplist_find_data_recursive(plist, plist_len, idx, offset_table_offset,
-                                     offset_size, ref_size, num_objects, key,
-                                     out_data, out_capacity, out_len,
-                                     depth + 1)) {
+      if (bplist_find_data_recursive(
+              plist, plist_len, idx, offset_table_offset, offset_size, ref_size,
+              num_objects, key, out_data, out_capacity, out_len, depth + 1)) {
         return true;
       }
     }
@@ -561,10 +561,9 @@ bool bplist_find_data(const uint8_t *plist, size_t plist_len, const char *key,
     return false;
   }
 
-  return bplist_find_data_in_dict(plist, plist_len, top_offset,
-                                  offset_table_offset, offset_size, ref_size,
-                                  num_objects, key, out_data, out_capacity,
-                                  out_len);
+  return bplist_find_data_in_dict(
+      plist, plist_len, top_offset, offset_table_offset, offset_size, ref_size,
+      num_objects, key, out_data, out_capacity, out_len);
 }
 
 bool bplist_find_data_deep(const uint8_t *plist, size_t plist_len,
@@ -584,10 +583,9 @@ bool bplist_find_data_deep(const uint8_t *plist, size_t plist_len,
     return false;
   }
 
-  return bplist_find_data_recursive(plist, plist_len, top_object,
-                                    offset_table_offset, offset_size, ref_size,
-                                    num_objects, key, out_data, out_capacity,
-                                    out_len, 0);
+  return bplist_find_data_recursive(
+      plist, plist_len, top_object, offset_table_offset, offset_size, ref_size,
+      num_objects, key, out_data, out_capacity, out_len, 0);
 }
 
 bool bplist_find_int(const uint8_t *plist, size_t plist_len, const char *key,
@@ -649,9 +647,9 @@ bool bplist_find_int(const uint8_t *plist, size_t plist_len, const char *key,
 
   for (size_t i = 0; i < dict_size; i++) {
     uint64_t key_idx = read_be_int(key_refs + i * ref_size, ref_size);
-    uint64_t key_offset = bplist_get_offset(
-        plist, plist_len, offset_table_offset, offset_size, num_objects,
-        key_idx);
+    uint64_t key_offset =
+        bplist_get_offset(plist, plist_len, offset_table_offset, offset_size,
+                          num_objects, key_idx);
     if (key_offset >= plist_len) {
       continue;
     }
@@ -661,9 +659,9 @@ bool bplist_find_int(const uint8_t *plist, size_t plist_len, const char *key,
                            sizeof(found_key))) {
       if (strcmp(found_key, key) == 0) {
         uint64_t val_idx = read_be_int(val_refs + i * ref_size, ref_size);
-        uint64_t val_offset = bplist_get_offset(
-            plist, plist_len, offset_table_offset, offset_size, num_objects,
-            val_idx);
+        uint64_t val_offset =
+            bplist_get_offset(plist, plist_len, offset_table_offset,
+                              offset_size, num_objects, val_idx);
         if (val_offset >= plist_len) {
           return false;
         }
@@ -732,9 +730,9 @@ bool bplist_find_real(const uint8_t *plist, size_t plist_len, const char *key,
 
   for (size_t i = 0; i < dict_size; i++) {
     uint64_t key_idx = read_be_int(key_refs + i * ref_size, ref_size);
-    uint64_t key_offset = bplist_get_offset(
-        plist, plist_len, offset_table_offset, offset_size, num_objects,
-        key_idx);
+    uint64_t key_offset =
+        bplist_get_offset(plist, plist_len, offset_table_offset, offset_size,
+                          num_objects, key_idx);
     if (key_offset >= plist_len) {
       continue;
     }
@@ -744,9 +742,9 @@ bool bplist_find_real(const uint8_t *plist, size_t plist_len, const char *key,
                            sizeof(found_key))) {
       if (strcmp(found_key, key) == 0) {
         uint64_t val_idx = read_be_int(val_refs + i * ref_size, ref_size);
-        uint64_t val_offset = bplist_get_offset(
-            plist, plist_len, offset_table_offset, offset_size, num_objects,
-            val_idx);
+        uint64_t val_offset =
+            bplist_get_offset(plist, plist_len, offset_table_offset,
+                              offset_size, num_objects, val_idx);
         if (val_offset >= plist_len) {
           return false;
         }
@@ -823,9 +821,9 @@ bool bplist_find_string(const uint8_t *plist, size_t plist_len, const char *key,
 
   for (size_t i = 0; i < dict_size; i++) {
     uint64_t key_idx = read_be_int(key_refs + i * ref_size, ref_size);
-    uint64_t key_offset = bplist_get_offset(
-        plist, plist_len, offset_table_offset, offset_size, num_objects,
-        key_idx);
+    uint64_t key_offset =
+        bplist_get_offset(plist, plist_len, offset_table_offset, offset_size,
+                          num_objects, key_idx);
     if (key_offset >= plist_len) {
       continue;
     }
@@ -835,9 +833,9 @@ bool bplist_find_string(const uint8_t *plist, size_t plist_len, const char *key,
                            sizeof(found_key))) {
       if (strcmp(found_key, key) == 0) {
         uint64_t val_idx = read_be_int(val_refs + i * ref_size, ref_size);
-        uint64_t val_offset = bplist_get_offset(
-            plist, plist_len, offset_table_offset, offset_size, num_objects,
-            val_idx);
+        uint64_t val_offset =
+            bplist_get_offset(plist, plist_len, offset_table_offset,
+                              offset_size, num_objects, val_idx);
         if (val_offset >= plist_len) {
           return false;
         }
@@ -940,18 +938,18 @@ bool bplist_get_streams_count(const uint8_t *plist, size_t plist_len,
 
   for (size_t i = 0; i < dict_size; i++) {
     uint64_t key_idx = read_be_int(key_refs + i * ref_size, ref_size);
-    uint64_t key_offset = bplist_get_offset(
-        plist, plist_len, offset_table_offset, offset_size, num_objects,
-        key_idx);
+    uint64_t key_offset =
+        bplist_get_offset(plist, plist_len, offset_table_offset, offset_size,
+                          num_objects, key_idx);
     if (key_offset >= plist_len) {
       continue;
     }
 
     if (key_offset == streams_key_offset) {
       uint64_t val_idx = read_be_int(val_refs + i * ref_size, ref_size);
-      uint64_t val_offset = bplist_get_offset(
-          plist, plist_len, offset_table_offset, offset_size, num_objects,
-          val_idx);
+      uint64_t val_offset =
+          bplist_get_offset(plist, plist_len, offset_table_offset, offset_size,
+                            num_objects, val_idx);
       if (val_offset >= plist_len) {
         return false;
       }
@@ -1076,18 +1074,18 @@ bool bplist_get_stream_info(const uint8_t *plist, size_t plist_len,
 
   for (size_t i = 0; i < dict_size; i++) {
     uint64_t key_idx = read_be_int(key_refs + i * ref_size, ref_size);
-    uint64_t key_offset = bplist_get_offset(
-        plist, plist_len, offset_table_offset, offset_size, num_objects,
-        key_idx);
+    uint64_t key_offset =
+        bplist_get_offset(plist, plist_len, offset_table_offset, offset_size,
+                          num_objects, key_idx);
     if (key_offset >= plist_len) {
       continue;
     }
 
     if (key_offset == streams_key_offset) {
       uint64_t val_idx = read_be_int(val_refs + i * ref_size, ref_size);
-      uint64_t val_offset = bplist_get_offset(
-          plist, plist_len, offset_table_offset, offset_size, num_objects,
-          val_idx);
+      uint64_t val_offset =
+          bplist_get_offset(plist, plist_len, offset_table_offset, offset_size,
+                            num_objects, val_idx);
       if (val_offset >= plist_len) {
         return false;
       }
@@ -1140,7 +1138,8 @@ bool bplist_get_stream_info(const uint8_t *plist, size_t plist_len,
       // Overflow-safe form of: stream_pos + stream_dict_size*2*ref_size
       // <= plist_len.
       if (stream_pos > plist_len ||
-          stream_dict_size > (plist_len - stream_pos) / ((size_t)ref_size * 2)) {
+          stream_dict_size >
+              (plist_len - stream_pos) / ((size_t)ref_size * 2)) {
         return false;
       }
 
@@ -1151,9 +1150,9 @@ bool bplist_get_stream_info(const uint8_t *plist, size_t plist_len,
       for (size_t j = 0; j < stream_dict_size; j++) {
         uint64_t stream_key_idx =
             read_be_int(stream_key_refs + j * ref_size, ref_size);
-        uint64_t stream_key_offset = bplist_get_offset(
-            plist, plist_len, offset_table_offset, offset_size, num_objects,
-            stream_key_idx);
+        uint64_t stream_key_offset =
+            bplist_get_offset(plist, plist_len, offset_table_offset,
+                              offset_size, num_objects, stream_key_idx);
 
         char stream_key[32];
         if (!bplist_read_string(plist, plist_len, stream_key_offset, stream_key,
@@ -1163,9 +1162,9 @@ bool bplist_get_stream_info(const uint8_t *plist, size_t plist_len,
 
         uint64_t stream_val_idx =
             read_be_int(stream_val_refs + j * ref_size, ref_size);
-        uint64_t stream_val_offset = bplist_get_offset(
-            plist, plist_len, offset_table_offset, offset_size, num_objects,
-            stream_val_idx);
+        uint64_t stream_val_offset =
+            bplist_get_offset(plist, plist_len, offset_table_offset,
+                              offset_size, num_objects, stream_val_idx);
 
         if (strcmp(stream_key, "type") == 0) {
           int64_t type_val = 0;
@@ -1279,18 +1278,18 @@ bool bplist_get_stream_kv_info(const uint8_t *plist, size_t plist_len,
 
   for (size_t i = 0; i < dict_size; i++) {
     uint64_t key_idx = read_be_int(key_refs + i * ref_size, ref_size);
-    uint64_t key_offset = bplist_get_offset(
-        plist, plist_len, offset_table_offset, offset_size, num_objects,
-        key_idx);
+    uint64_t key_offset =
+        bplist_get_offset(plist, plist_len, offset_table_offset, offset_size,
+                          num_objects, key_idx);
     if (key_offset >= plist_len) {
       continue;
     }
 
     if (key_offset == streams_key_offset) {
       uint64_t val_idx = read_be_int(val_refs + i * ref_size, ref_size);
-      uint64_t val_offset = bplist_get_offset(
-          plist, plist_len, offset_table_offset, offset_size, num_objects,
-          val_idx);
+      uint64_t val_offset =
+          bplist_get_offset(plist, plist_len, offset_table_offset, offset_size,
+                            num_objects, val_idx);
       if (val_offset >= plist_len) {
         return false;
       }
@@ -1343,7 +1342,8 @@ bool bplist_get_stream_kv_info(const uint8_t *plist, size_t plist_len,
       // Overflow-safe form of: stream_pos + stream_dict_size*2*ref_size
       // <= plist_len.
       if (stream_pos > plist_len ||
-          stream_dict_size > (plist_len - stream_pos) / ((size_t)ref_size * 2)) {
+          stream_dict_size >
+              (plist_len - stream_pos) / ((size_t)ref_size * 2)) {
         return false;
       }
 
@@ -1355,9 +1355,9 @@ bool bplist_get_stream_kv_info(const uint8_t *plist, size_t plist_len,
            j++) {
         uint64_t stream_key_idx =
             read_be_int(stream_key_refs + j * ref_size, ref_size);
-        uint64_t stream_key_offset = bplist_get_offset(
-            plist, plist_len, offset_table_offset, offset_size, num_objects,
-            stream_key_idx);
+        uint64_t stream_key_offset =
+            bplist_get_offset(plist, plist_len, offset_table_offset,
+                              offset_size, num_objects, stream_key_idx);
 
         char stream_key[64];
         if (!bplist_read_string(plist, plist_len, stream_key_offset, stream_key,
@@ -1367,9 +1367,9 @@ bool bplist_get_stream_kv_info(const uint8_t *plist, size_t plist_len,
 
         uint64_t stream_val_idx =
             read_be_int(stream_val_refs + j * ref_size, ref_size);
-        uint64_t stream_val_offset = bplist_get_offset(
-            plist, plist_len, offset_table_offset, offset_size, num_objects,
-            stream_val_idx);
+        uint64_t stream_val_offset =
+            bplist_get_offset(plist, plist_len, offset_table_offset,
+                              offset_size, num_objects, stream_val_idx);
         if (stream_val_offset >= plist_len) {
           continue;
         }

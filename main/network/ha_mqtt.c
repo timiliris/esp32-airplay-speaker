@@ -24,9 +24,9 @@ static const char *TAG = "ha_mqtt";
 /*  State                                                              */
 /* ------------------------------------------------------------------ */
 
-#define ID_MAX        24  /* "airplay2_" + 6 hex + NUL */
-#define TOPIC_MAX     96
-#define PAYLOAD_MAX   512
+#define ID_MAX      24 /* "airplay2_" + 6 hex + NUL */
+#define TOPIC_MAX   96
+#define PAYLOAD_MAX 512
 
 /* Refresh all state topics every ~30s so HA stays in sync with changes that
    happen outside this module (web API, physical buttons). */
@@ -34,8 +34,8 @@ static const char *TAG = "ha_mqtt";
 
 static esp_mqtt_client_handle_t s_client = NULL;
 static volatile bool s_connected = false;
-static char s_id[ID_MAX] = {0};   /* device id, e.g. "airplay2_a1b2c3" */
-static char s_base[40] = {0};     /* "airplay2/<id>" */
+static char s_id[ID_MAX] = {0}; /* device id, e.g. "airplay2_a1b2c3" */
+static char s_base[40] = {0};   /* "airplay2/<id>" */
 static char s_status_topic[48] = {0};
 
 static TimerHandle_t s_refresh_timer = NULL;
@@ -58,9 +58,9 @@ typedef struct {
 } eq_preset_t;
 
 static const eq_preset_t EQ_PRESETS[] = {
-    {"Plat", 0, 0, 0, 0},        {"Basses+", 6, 0, 1, 0},
-    {"Voix", -3, 4, 2, 0},       {"Pop", 4, -1, 3, 0},
-    {"Live", 3, 1, 3, 0},        {"Satellites", -3, 0, 2, 120},
+    {"Plat", 0, 0, 0, 0},  {"Basses+", 6, 0, 1, 0},
+    {"Voix", -3, 4, 2, 0}, {"Pop", 4, -1, 3, 0},
+    {"Live", 3, 1, 3, 0},  {"Satellites", -3, 0, 2, 120},
 };
 #define EQ_PRESET_COUNT (sizeof(EQ_PRESETS) / sizeof(EQ_PRESETS[0]))
 
@@ -86,7 +86,8 @@ static void mqtt_pub(const char *topic, const char *payload, bool retain) {
     return;
   }
   esp_mqtt_client_publish(s_client, topic, payload ? payload : "",
-                          payload ? (int)strlen(payload) : 0, 1, retain ? 1 : 0);
+                          payload ? (int)strlen(payload) : 0, 1,
+                          retain ? 1 : 0);
 }
 
 /* Build a "<base>/<suffix>" topic into a caller buffer. */
@@ -631,8 +632,8 @@ static void start_client(void) {
     ESP_LOGE(TAG, "esp_mqtt_client_init failed");
     return;
   }
-  esp_mqtt_client_register_event(s_client, ESP_EVENT_ANY_ID,
-                                 mqtt_event_handler, NULL);
+  esp_mqtt_client_register_event(s_client, ESP_EVENT_ANY_ID, mqtt_event_handler,
+                                 NULL);
   esp_err_t err = esp_mqtt_client_start(s_client);
   if (err != ESP_OK) {
     ESP_LOGE(TAG, "esp_mqtt_client_start failed: %s", esp_err_to_name(err));
@@ -670,4 +671,6 @@ void ha_mqtt_reconfigure(void) {
   start_client();
 }
 
-bool ha_mqtt_connected(void) { return s_connected; }
+bool ha_mqtt_connected(void) {
+  return s_connected;
+}

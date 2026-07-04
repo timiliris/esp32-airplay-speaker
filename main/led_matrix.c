@@ -25,11 +25,11 @@ static const char *TAG = "led_matrix";
 #define MAX7219_REG_SHUTDOWN    0x0C
 #define MAX7219_REG_DISPLAYTEST 0x0F
 
-#define MATRIX_FPS         50
-#define MATRIX_FRAME_US    (1000000 / MATRIX_FPS)
-#define MATRIX_TASK_STACK  3072
-#define MATRIX_TASK_PRIO   2
-#define MATRIX_TASK_CORE   0
+#define MATRIX_FPS        50
+#define MATRIX_FRAME_US   (1000000 / MATRIX_FPS)
+#define MATRIX_TASK_STACK 3072
+#define MATRIX_TASK_PRIO  2
+#define MATRIX_TASK_CORE  0
 
 // ============================================================================
 // Shared audio-analysis state (single producer = audio task,
@@ -37,8 +37,8 @@ static const char *TAG = "led_matrix";
 // ============================================================================
 
 typedef struct {
-  float level; // overall RMS level, ~0..1 (smoothed + AGC)
-  float bass;  // low-frequency energy, ~0..1
+  float level;  // overall RMS level, ~0..1 (smoothed + AGC)
+  float bass;   // low-frequency energy, ~0..1
   float treble; // high-frequency energy, ~0..1
 } matrix_audio_t;
 
@@ -215,8 +215,7 @@ static void fx_spectrum(uint8_t rows[8], const matrix_audio_t *a) {
     float w = (float)c / 7.0f;
     float band = a->bass * (1.0f - w) + a->treble * w;
     // A little moving variation so it reads as a spectrum, not a flat bar.
-    float wobble =
-        0.15f * sinf((float)phase * 0.18f + (float)c * 0.8f);
+    float wobble = 0.15f * sinf((float)phase * 0.18f + (float)c * 0.8f);
     float target = (band + wobble) * 8.0f;
     if (target < 0.0f) {
       target = 0.0f;
@@ -401,10 +400,9 @@ static void matrix_start(int fx, int brightness, int din, int clk, int cs) {
   s_running = true;
   s_enabled = true; // open the led_matrix_feed() gate
 
-  BaseType_t ok = xTaskCreatePinnedToCore(render_task, "led_matrix",
-                                          MATRIX_TASK_STACK, NULL,
-                                          MATRIX_TASK_PRIO, &s_task,
-                                          MATRIX_TASK_CORE);
+  BaseType_t ok = xTaskCreatePinnedToCore(
+      render_task, "led_matrix", MATRIX_TASK_STACK, NULL, MATRIX_TASK_PRIO,
+      &s_task, MATRIX_TASK_CORE);
   if (ok != pdPASS) {
     ESP_LOGE(TAG, "failed to create render task");
     s_enabled = false;
@@ -472,8 +470,8 @@ void led_matrix_feed(const int16_t *pcm, size_t stereo_samples) {
   // Overall RMS, plus a heavy low-pass (bass) and successive-difference energy
   // (treble), all in one cheap pass.
   uint64_t sum_sq = 0;
-  uint64_t bass_sum = 0;  // running low-pass of |sample|
-  uint64_t diff_sum = 0;  // |s[i] - s[i-1]| energy ~ treble
+  uint64_t bass_sum = 0; // running low-pass of |sample|
+  uint64_t diff_sum = 0; // |s[i] - s[i-1]| energy ~ treble
   int32_t prev = pcm[0];
   for (size_t i = 0; i < total; i++) {
     int32_t s = pcm[i];

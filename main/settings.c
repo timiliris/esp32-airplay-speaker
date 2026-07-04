@@ -75,8 +75,8 @@ static const char *TAG = "settings";
 #define ARGB_DEFAULT_COUNT 30
 #define ARGB_DEFAULT_FX    0
 #define ARGB_DEFAULT_BR    128
-#define ARGB_DEFAULT_COLOR 0x2080FFu  // pleasant blue (0xRRGGBB)
-#define ARGB_DEFAULT_SPEED 5          // 1..10 animation speed
+#define ARGB_DEFAULT_COLOR 0x2080FFu // pleasant blue (0xRRGGBB)
+#define ARGB_DEFAULT_SPEED 5         // 1..10 animation speed
 
 // Button GPIO defaults = Kconfig values (so behaviour is unchanged
 // until the user overrides them via the API).
@@ -89,32 +89,32 @@ static const char *TAG = "settings";
 // Speaker-protection defaults (per shared contract). The limiter is ON by
 // default (transparent until peaks, protects the speakers); the amp GPIO is
 // OFF until the user wires their amp.
-#define PROT_DEFAULT_LIM_EN     1
-#define PROT_DEFAULT_LIM_CEIL   (-1)
-#define PROT_LIM_CEIL_MIN       (-12)
-#define PROT_LIM_CEIL_MAX       0
-#define PROT_DEFAULT_AMP_GPIO   (-1)
-#define PROT_DEFAULT_AMP_HIGH   1
-#define PROT_DEFAULT_STBY_MIN   5
-#define PROT_STBY_MIN_MIN       0
-#define PROT_STBY_MIN_MAX       120
+#define PROT_DEFAULT_LIM_EN   1
+#define PROT_DEFAULT_LIM_CEIL (-1)
+#define PROT_LIM_CEIL_MIN     (-12)
+#define PROT_LIM_CEIL_MAX     0
+#define PROT_DEFAULT_AMP_GPIO (-1)
+#define PROT_DEFAULT_AMP_HIGH 1
+#define PROT_DEFAULT_STBY_MIN 5
+#define PROT_STBY_MIN_MIN     0
+#define PROT_STBY_MIN_MAX     120
 
 // Tone EQ defaults (per shared contract): off, flat, high-pass off.
-#define TONE_DEFAULT_ON     0
-#define TONE_DEFAULT_GAIN   0
-#define TONE_GAIN_MIN       (-12)
-#define TONE_GAIN_MAX       (12)
+#define TONE_DEFAULT_ON   0
+#define TONE_DEFAULT_GAIN 0
+#define TONE_GAIN_MIN     (-12)
+#define TONE_GAIN_MAX     (12)
 // High-pass cutoff (Hz): 0 = OFF, otherwise 40..400.
-#define TONE_DEFAULT_HPF    0
-#define TONE_HPF_MIN        40
-#define TONE_HPF_MAX        400
+#define TONE_DEFAULT_HPF 0
+#define TONE_HPF_MIN     40
+#define TONE_HPF_MAX     400
 
 #define MAX_WIFI_SSID_LEN     32
 #define MAX_WIFI_PASSWORD_LEN 64
 #define MAX_DEVICE_NAME_LEN   64
 
-#define DEVICE_PW_DIGEST_LEN  32 /* SHA-256 */
-#define MIN_DEVICE_PW_LEN     4
+#define DEVICE_PW_DIGEST_LEN 32 /* SHA-256 */
+#define MIN_DEVICE_PW_LEN    4
 
 // Cached values  (defaults = 50 %)
 static float g_volume_db = -15.0f;
@@ -619,7 +619,8 @@ bool settings_check_device_password(const char *pw) {
   }
 
   uint8_t candidate[DEVICE_PW_DIGEST_LEN];
-  if (mbedtls_sha256((const unsigned char *)pw, strlen(pw), candidate, 0) != 0) {
+  if (mbedtls_sha256((const unsigned char *)pw, strlen(pw), candidate, 0) !=
+      0) {
     return false;
   }
 
@@ -872,8 +873,10 @@ esp_err_t settings_set_argb(bool en, int gpio, int count, int fx, int br,
   nvs_close(nvs);
 
   if (err == ESP_OK) {
-    ESP_LOGI(TAG, "Saved argb: en=%d gpio=%d count=%d fx=%d br=%d color=%06lX speed=%d",
-             en, gpio, count, fx, br, (unsigned long)(color & 0xFFFFFFu), speed);
+    ESP_LOGI(
+        TAG,
+        "Saved argb: en=%d gpio=%d count=%d fx=%d br=%d color=%06lX speed=%d",
+        en, gpio, count, fx, br, (unsigned long)(color & 0xFFFFFFu), speed);
   } else {
     ESP_LOGE(TAG, "Failed to save argb config: %s", esp_err_to_name(err));
   }
@@ -1170,8 +1173,8 @@ esp_err_t settings_set_buttons(int pp, int vu, int vd, int nx, int pv) {
   nvs_close(nvs);
 
   if (err == ESP_OK) {
-    ESP_LOGI(TAG, "Saved buttons: pp=%d vu=%d vd=%d nx=%d pv=%d", pp, vu, vd, nx,
-             pv);
+    ESP_LOGI(TAG, "Saved buttons: pp=%d vu=%d vd=%d nx=%d pv=%d", pp, vu, vd,
+             nx, pv);
   } else {
     ESP_LOGE(TAG, "Failed to save button config: %s", esp_err_to_name(err));
   }
