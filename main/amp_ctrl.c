@@ -9,7 +9,7 @@
 static const char *TAG = "amp_ctrl";
 
 // Cached configuration (mirrors the NVS protection settings).
-static int g_gpio = -1;          // -1 = disabled
+static int g_gpio = -1;           // -1 = disabled
 static bool g_active_high = true; // amp enabled when GPIO high
 static int g_standby_min = 5;     // 0 = never auto-standby
 
@@ -92,10 +92,10 @@ static void apply_config(void) {
                           &standby_min);
 
   // Preserve the current amp state across a live reconfigure. Otherwise saving
-  // any setting (the web/app config POST calls amp_ctrl_reconfigure) while audio
-  // is playing would mute the amp and never re-wake it — no new RTSP "playing"
-  // event arrives mid-stream, so the sound cuts and never resumes. At boot
-  // g_is_active is false, so this still starts in standby as intended.
+  // any setting (the web/app config POST calls amp_ctrl_reconfigure) while
+  // audio is playing would mute the amp and never re-wake it — no new RTSP
+  // "playing" event arrives mid-stream, so the sound cuts and never resumes. At
+  // boot g_is_active is false, so this still starts in standby as intended.
   bool was_active = g_is_active;
 
   cancel_standby_timer();
@@ -153,4 +153,6 @@ void amp_ctrl_init(void) {
   }
 }
 
-void amp_ctrl_reconfigure(void) { apply_config(); }
+void amp_ctrl_reconfigure(void) {
+  apply_config();
+}

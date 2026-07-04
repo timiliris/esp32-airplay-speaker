@@ -15,10 +15,10 @@
 #define EQ_MID_Q     1.0f
 #define EQ_TREBLE_FC 8000.0f /* high-shelf */
 /* Shelving "Q" / slope: 0.707 gives a clean Butterworth-ish shelf. */
-#define EQ_SHELF_Q   0.707f
+#define EQ_SHELF_Q 0.707f
 
-#define EQ_GAIN_MIN (-12)
-#define EQ_GAIN_MAX (12)
+#define EQ_GAIN_MIN  (-12)
+#define EQ_GAIN_MAX  (12)
 #define EQ_NUM_BANDS 3
 
 /* High-pass cutoff bounds (Hz). 0 = OFF; otherwise clamped to this range.

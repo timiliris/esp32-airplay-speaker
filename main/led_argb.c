@@ -20,13 +20,13 @@ static const char *TAG = "led_argb";
 //   bit0 = 0.3 us high, 0.9 us low      bit1 = 0.9 us high, 0.3 us low
 // The latch/reset (>50 us low) is provided implicitly by the gap between
 // frames (we render at ~50 fps => 20 ms idle between transmits).
-#define ARGB_RES_HZ      (10 * 1000 * 1000)
-#define ARGB_FPS         50
-#define ARGB_FRAME_US    (1000000 / ARGB_FPS)
-#define ARGB_TASK_STACK  4096
-#define ARGB_TASK_PRIO   2
-#define ARGB_TASK_CORE   0
-#define ARGB_MAX_LEDS    300
+#define ARGB_RES_HZ     (10 * 1000 * 1000)
+#define ARGB_FPS        50
+#define ARGB_FRAME_US   (1000000 / ARGB_FPS)
+#define ARGB_TASK_STACK 4096
+#define ARGB_TASK_PRIO  2
+#define ARGB_TASK_CORE  0
+#define ARGB_MAX_LEDS   300
 
 // ============================================================================
 // Shared audio-analysis state (single producer = audio task, single consumer =
@@ -78,12 +78,36 @@ static void hsv2rgb(uint8_t h, uint8_t s, uint8_t v, uint8_t *r, uint8_t *g,
   uint8_t q = (uint8_t)((v * (255 - ((s * rem) / 255))) / 255);
   uint8_t t = (uint8_t)((v * (255 - ((s * (255 - rem)) / 255))) / 255);
   switch (region) {
-  case 0: *r = v; *g = t; *b = p; break;
-  case 1: *r = q; *g = v; *b = p; break;
-  case 2: *r = p; *g = v; *b = t; break;
-  case 3: *r = p; *g = q; *b = v; break;
-  case 4: *r = t; *g = p; *b = v; break;
-  default: *r = v; *g = p; *b = q; break;
+  case 0:
+    *r = v;
+    *g = t;
+    *b = p;
+    break;
+  case 1:
+    *r = q;
+    *g = v;
+    *b = p;
+    break;
+  case 2:
+    *r = p;
+    *g = v;
+    *b = t;
+    break;
+  case 3:
+    *r = p;
+    *g = q;
+    *b = v;
+    break;
+  case 4:
+    *r = t;
+    *g = p;
+    *b = v;
+    break;
+  default:
+    *r = v;
+    *g = p;
+    *b = q;
+    break;
   }
 }
 
@@ -116,19 +140,24 @@ static void fx_vu(const argb_audio_t *a) {
     bar = target;
   } else {
     bar -= (float)n * 0.04f;
-    if (bar < target) bar = target;
-    if (bar < 0.0f) bar = 0.0f;
+    if (bar < target)
+      bar = target;
+    if (bar < 0.0f)
+      bar = 0.0f;
   }
   if (bar > peak) {
     peak = bar;
   } else {
     peak -= (float)n * 0.012f;
-    if (peak < bar) peak = bar;
+    if (peak < bar)
+      peak = bar;
   }
   int lit = (int)(bar + 0.5f);
-  if (lit > n) lit = n;
+  if (lit > n)
+    lit = n;
   int pk = (int)(peak + 0.5f);
-  if (pk > n) pk = n;
+  if (pk > n)
+    pk = n;
   for (int i = 0; i < n; i++) {
     if (i < lit) {
       float frac = (n > 1) ? (float)i / (float)(n - 1) : 0.0f;
@@ -151,8 +180,10 @@ static void fx_spectrum(const argb_audio_t *a) {
   for (int i = 0; i < n; i++) {
     float w = (n > 1) ? (float)i / (float)(n - 1) : 0.0f;
     float band = a->bass * (1.0f - w) + a->treble * w;
-    if (band < 0.0f) band = 0.0f;
-    if (band > 1.0f) band = 1.0f;
+    if (band < 0.0f)
+      band = 0.0f;
+    if (band > 1.0f)
+      band = 1.0f;
     uint8_t hue = (uint8_t)(170.0f * w);
     uint8_t r, g, b;
     hsv2rgb(hue, 255, (uint8_t)(band * 255.0f), &r, &g, &b);
@@ -168,8 +199,10 @@ static void fx_bass_pulse(const argb_audio_t *a) {
     pulse = target;
   } else {
     pulse -= 0.05f;
-    if (pulse < target) pulse = target;
-    if (pulse < 0.0f) pulse = 0.0f;
+    if (pulse < target)
+      pulse = target;
+    if (pulse < 0.0f)
+      pulse = 0.0f;
   }
   uint8_t v = (uint8_t)(pulse * 255.0f);
   for (int i = 0; i < s_count; i++) {
@@ -212,15 +245,18 @@ static void fx_vu_center(const argb_audio_t *a) {
     bar = target;
   } else {
     bar -= (float)n * 0.025f;
-    if (bar < target) bar = target;
-    if (bar < 0.0f) bar = 0.0f;
+    if (bar < target)
+      bar = target;
+    if (bar < 0.0f)
+      bar = 0.0f;
   }
   int lit = (int)(bar + 0.5f);
   for (int i = 0; i < n; i++) {
     int dist = (i < half) ? (half - 1 - i) : (i - half);
     if (dist < lit) {
       float frac = (half > 0) ? (float)dist / (float)half : 0.0f;
-      uint8_t hue = (uint8_t)(96.0f * (1.0f - frac)); // green centre -> red edge
+      uint8_t hue =
+          (uint8_t)(96.0f * (1.0f - frac)); // green centre -> red edge
       uint8_t r, g, b;
       hsv2rgb(hue, 255, 255, &r, &g, &b);
       fb_set(i, r, g, b);
@@ -238,7 +274,8 @@ static void fx_beat_strobe(const argb_audio_t *a) {
   }
   prev = a->bass;
   flash -= 0.03f * (float)s_speed;
-  if (flash < 0.0f) flash = 0.0f;
+  if (flash < 0.0f)
+    flash = 0.0f;
   uint8_t v = (uint8_t)(flash * 255.0f);
   for (int i = 0; i < s_count; i++) {
     fb_set_color(i, v);
@@ -279,9 +316,11 @@ static void fx_comet(void) {
   int head = (int)(pos + 0.5f);
   for (int i = 0; i < n; i++) {
     int d = head - i;
-    if (d < 0) d = -d;
+    if (d < 0)
+      d = -d;
     float fade = 1.0f - (float)d / 5.0f; // ~5-pixel tail
-    if (fade < 0.0f) fade = 0.0f;
+    if (fade < 0.0f)
+      fade = 0.0f;
     fb_set_color(i, (uint8_t)(fade * 255.0f));
   }
 }
@@ -323,8 +362,10 @@ static void fx_level_color(const argb_audio_t *a) {
 
 static void strip_show(void) {
   int br = s_brightness;
-  if (br < 0) br = 0;
-  if (br > 255) br = 255;
+  if (br < 0)
+    br = 0;
+  if (br > 255)
+    br = 255;
   for (int i = 0; i < s_count; i++) {
     uint8_t r = s_fb[i * 3 + 0];
     uint8_t g = s_fb[i * 3 + 1];
@@ -358,19 +399,43 @@ static void render_task(void *arg) {
 
     memset(s_fb, 0, (size_t)s_count * 3);
     switch (s_fx) {
-    case 1: fx_spectrum(&a); break;
-    case 2: fx_bass_pulse(&a); break;
-    case 3: fx_rainbow(); break;
-    case 4: fx_nightlight(); break;
-    case 5: fx_vu_center(&a); break;
-    case 6: fx_beat_strobe(&a); break;
-    case 7: fx_solid(); break;
-    case 8: fx_breathe(); break;
-    case 9: fx_comet(); break;
-    case 10: fx_twinkle(); break;
-    case 11: fx_level_color(&a); break;
+    case 1:
+      fx_spectrum(&a);
+      break;
+    case 2:
+      fx_bass_pulse(&a);
+      break;
+    case 3:
+      fx_rainbow();
+      break;
+    case 4:
+      fx_nightlight();
+      break;
+    case 5:
+      fx_vu_center(&a);
+      break;
+    case 6:
+      fx_beat_strobe(&a);
+      break;
+    case 7:
+      fx_solid();
+      break;
+    case 8:
+      fx_breathe();
+      break;
+    case 9:
+      fx_comet();
+      break;
+    case 10:
+      fx_twinkle();
+      break;
+    case 11:
+      fx_level_color(&a);
+      break;
     case 0:
-    default: fx_vu(&a); break;
+    default:
+      fx_vu(&a);
+      break;
     }
     strip_show();
 
@@ -382,7 +447,8 @@ static void render_task(void *arg) {
       vTaskDelay(1);
     } else {
       TickType_t ticks = pdMS_TO_TICKS(delay_us / 1000);
-      if (ticks == 0) ticks = 1;
+      if (ticks == 0)
+        ticks = 1;
       vTaskDelay(ticks);
     }
   }
@@ -603,9 +669,12 @@ void led_argb_feed(const int16_t *pcm, size_t stereo_samples) {
   float level = rms / s_peak;
   float bass = (bass_abs * 1.4f) / s_peak;
   float treble = (treble_abs * 0.9f) / s_peak;
-  if (level > 1.0f) level = 1.0f;
-  if (bass > 1.0f) bass = 1.0f;
-  if (treble > 1.0f) treble = 1.0f;
+  if (level > 1.0f)
+    level = 1.0f;
+  if (bass > 1.0f)
+    bass = 1.0f;
+  if (treble > 1.0f)
+    treble = 1.0f;
 
   portENTER_CRITICAL(&s_audio_mux);
   float pl = s_audio.level, pb = s_audio.bass, pt = s_audio.treble;

@@ -263,10 +263,9 @@ static esp_err_t auth_status_handler(httpd_req_t *req) {
   bool authed = true;
   if (has_pw) {
     char token[AUTH_TOKEN_HEX + 1] = {0};
-    authed =
-        (httpd_req_get_hdr_value_str(req, "X-Auth-Token", token,
-                                     sizeof(token)) == ESP_OK) &&
-        web_server_auth_token_valid(token);
+    authed = (httpd_req_get_hdr_value_str(req, "X-Auth-Token", token,
+                                          sizeof(token)) == ESP_OK) &&
+             web_server_auth_token_valid(token);
   }
 
   cJSON *json = cJSON_CreateObject();
@@ -569,8 +568,8 @@ static esp_err_t captive_windows_handler(httpd_req_t *req) {
    response is never lost to the scan). We use wifi_scan_keep_connected()
    which does NOT disconnect the STA, so the link survives the scan. The web
    UI polls until scanning == false. */
-#define SCAN_CACHE_MAX 24
-#define SCAN_DEBOUNCE_MS 8000  // don't restart a scan more often than this
+#define SCAN_CACHE_MAX   24
+#define SCAN_DEBOUNCE_MS 8000 // don't restart a scan more often than this
 static wifi_ap_record_t s_scan_cache[SCAN_CACHE_MAX];
 static volatile uint16_t s_scan_cache_n = 0;
 static volatile bool s_scanning = false;
@@ -602,8 +601,7 @@ static esp_err_t wifi_scan_handler(httpd_req_t *req) {
   // stale. Without this debounce the UI's polling would re-trigger scans
   // back-to-back, keeping the radio permanently busy.
   int64_t now_ms = esp_timer_get_time() / 1000;
-  bool start_scan =
-      !s_scanning && (now_ms - s_last_scan_ms) > SCAN_DEBOUNCE_MS;
+  bool start_scan = !s_scanning && (now_ms - s_last_scan_ms) > SCAN_DEBOUNCE_MS;
   if (start_scan) {
     s_scanning = true;
     s_last_scan_ms = now_ms;
@@ -1683,9 +1681,9 @@ static esp_err_t nowplaying_handler(httpd_req_t *req) {
   /* Current SOURCE (iPhone) AirPlay volume as a linear Q15 (0..32768), or -1
      when nothing is playing. The UI maps it to a perceptual % to display the
      content volume separately from the board's own output level. */
-  cJSON_AddNumberToObject(
-      json, "sourceq15",
-      s_nowplaying.playing ? (int)airplay_get_volume_q15() : -1);
+  cJSON_AddNumberToObject(json, "sourceq15",
+                          s_nowplaying.playing ? (int)airplay_get_volume_q15()
+                                               : -1);
 
   char *json_str = cJSON_Print(json);
   if (!json_str) {
@@ -1726,9 +1724,9 @@ static esp_err_t volume_handler(httpd_req_t *req) {
   }
 
   cJSON *dir_json = cJSON_GetObjectItem(json, "dir");
-  const char *dir =
-      (dir_json && cJSON_IsString(dir_json)) ? cJSON_GetStringValue(dir_json)
-                                             : NULL;
+  const char *dir = (dir_json && cJSON_IsString(dir_json))
+                        ? cJSON_GetStringValue(dir_json)
+                        : NULL;
 
   cJSON *response = cJSON_CreateObject();
   if (dir && (strcmp(dir, "up") == 0 || strcmp(dir, "down") == 0)) {
@@ -2139,7 +2137,9 @@ esp_err_t web_server_start(uint16_t port) {
   config.max_open_sockets = 3; // Limit to save lwIP socket slots for AirPlay
 #endif
   config.lru_purge_enable = true; // Reclaim stale sockets when all are in use
-  config.max_uri_handlers = 46;   // captive portal + EQ + speedtest + gain + auth + matrix + argb + tone + nowplaying + volume + buttons + mqtt + protection
+  config.max_uri_handlers =
+      46; // captive portal + EQ + speedtest + gain + auth + matrix + argb +
+          // tone + nowplaying + volume + buttons + mqtt + protection
   config.max_resp_headers = 8;
   config.stack_size = 8192;
 
@@ -2229,15 +2229,13 @@ esp_err_t web_server_start(uint16_t port) {
                                 .handler = nowplaying_handler};
   httpd_register_uri_handler(s_server, &nowplaying_uri);
 
-  httpd_uri_t volume_uri = {.uri = "/api/volume",
-                            .method = HTTP_POST,
-                            .handler = volume_handler};
+  httpd_uri_t volume_uri = {
+      .uri = "/api/volume", .method = HTTP_POST, .handler = volume_handler};
   httpd_register_uri_handler(s_server, &volume_uri);
 
   // Optional 8x8 LED matrix (MAX7219)
-  httpd_uri_t matrix_get_uri = {.uri = "/api/matrix",
-                                .method = HTTP_GET,
-                                .handler = matrix_get_handler};
+  httpd_uri_t matrix_get_uri = {
+      .uri = "/api/matrix", .method = HTTP_GET, .handler = matrix_get_handler};
   httpd_register_uri_handler(s_server, &matrix_get_uri);
 
   httpd_uri_t matrix_post_uri = {.uri = "/api/matrix",
@@ -2245,25 +2243,21 @@ esp_err_t web_server_start(uint16_t port) {
                                  .handler = matrix_post_handler};
   httpd_register_uri_handler(s_server, &matrix_post_uri);
 
-  httpd_uri_t argb_get_uri = {.uri = "/api/argb",
-                              .method = HTTP_GET,
-                              .handler = argb_get_handler};
+  httpd_uri_t argb_get_uri = {
+      .uri = "/api/argb", .method = HTTP_GET, .handler = argb_get_handler};
   httpd_register_uri_handler(s_server, &argb_get_uri);
 
-  httpd_uri_t argb_post_uri = {.uri = "/api/argb",
-                               .method = HTTP_POST,
-                               .handler = argb_post_handler};
+  httpd_uri_t argb_post_uri = {
+      .uri = "/api/argb", .method = HTTP_POST, .handler = argb_post_handler};
   httpd_register_uri_handler(s_server, &argb_post_uri);
 
   // Software 3-band tone EQ (GET open, POST protected)
-  httpd_uri_t tone_get_uri = {.uri = "/api/tone",
-                              .method = HTTP_GET,
-                              .handler = tone_get_handler};
+  httpd_uri_t tone_get_uri = {
+      .uri = "/api/tone", .method = HTTP_GET, .handler = tone_get_handler};
   httpd_register_uri_handler(s_server, &tone_get_uri);
 
-  httpd_uri_t tone_post_uri = {.uri = "/api/tone",
-                               .method = HTTP_POST,
-                               .handler = tone_post_handler};
+  httpd_uri_t tone_post_uri = {
+      .uri = "/api/tone", .method = HTTP_POST, .handler = tone_post_handler};
   httpd_register_uri_handler(s_server, &tone_post_uri);
 
   // Speaker protection: limiter + amp mute/standby (GET open, POST protected)

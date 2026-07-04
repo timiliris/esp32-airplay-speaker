@@ -67,25 +67,47 @@ jobs:
     runs-on: ubuntu-latest
     needs: [format-check, lint-check]
     strategy:
+      fail-fast: false
       matrix:
+        # `name` -> asset suffix; `env` -> what the desktop app calls the board;
+        # `target` -> esp chip; `flash_size`/`label` feed the manifest the app reads.
         include:
           - name: esp32s3
+            env: esp32s3
             target: esp32s3
+            flash_size: "16MB"
+            label: "ESP32-S3 DevKitC-1 (16 Mo)"
             sdkconfig: "sdkconfig.defaults;sdkconfig.defaults.esp32s3"
+          - name: xiao-s3
+            env: xiao-s3
+            target: esp32s3
+            flash_size: "8MB"
+            label: "Seeed XIAO ESP32-S3 (8 Mo)"
+            sdkconfig: "sdkconfig.defaults;sdkconfig.defaults.esp32s3;sdkconfig.defaults.xiao"
           - name: squeezeamp-bt
+            env: squeezeamp
             target: esp32
+            flash_size: "8MB"
+            label: "SqueezeAMP (ESP32, BT, 8 Mo)"
             sdkconfig: "sdkconfig.defaults;sdkconfig.defaults.squeezeamp;sdkconfig.defaults.bt"
-          - name: squeezeamp-4m
-            target: esp32
-            sdkconfig: "sdkconfig.defaults;sdkconfig.defaults.squeezeamp-4m"
+          # squeezeamp-4m is intentionally omitted: the web-UI SPIFFS image
+          # overflows the 4 MB layout's ~188 KB storage partition
+          # (SpiffsFullError). Re-add once the 4 MB `data/www` is trimmed or the
+          # storage partition enlarged in partitions-4m.csv.
           - name: esparagus-audio-brick-bt
+            env: esparagus-audio-brick
             target: esp32
+            flash_size: "8MB"
+            label: "Esparagus Audio Brick (ESP32, BT)"
             sdkconfig: "sdkconfig.defaults;sdkconfig.defaults.esparagus-audio-brick;sdkconfig.defaults.bt"
     steps:
       - uses: actions/checkout@v6
         with:
           submodules: "recursive"
 
+      # Build the app, then produce TWO artifacts per board:
+      #   firmware-<name>.bin -> app-partition image, for OTA (POST /api/ota/update)
+      #   merged-<name>.bin   -> full flash image (esptool merge_bin), for USB serial at 0x0
       - name: Build ${{ matrix.name }}
         uses: espressif/esp-idf-ci-action@v1
         with:
@@ -93,15 +115,33 @@ jobs:
           target: ${{ matrix.target }}
           command: >
             idf.py -DSDKCONFIG_DEFAULTS="${{ matrix.sdkconfig }}" build &&
-            cd build &&
-            esptool.py --chip ${{ matrix.target }} merge_bin --format raw -o merged-firmware.bin $(cat flash_args) &&
-            cp merged-firmware.bin ../airplay2-receiver-${{ matrix.name }}.bin
+            mkdir -p dist &&
+            ( cd build && esptool.py --chip ${{ matrix.target }} merge_bin --format raw -o merged.bin $(cat flash_args) ) &&
+            cp build/merged.bin dist/merged-${{ matrix.name }}.bin &&
+            cp build/airplay2-receiver.bin dist/firmware-${{ matrix.name }}.bin
+
+      - name: Write manifest fragment
+        run: |
+          # dist/ and its .bin files were created by the esp-idf-ci-action
+          # container as root; take ownership so this host step can write into it.
+          mkdir -p dist
+          sudo chown -R "$(id -u):$(id -g)" dist
+          cat > "dist/manifest-${{ matrix.name }}.json" <<EOF
+          {
+            "env": "${{ matrix.env }}",
+            "label": "${{ matrix.label }}",
+            "chip": "${{ matrix.target }}",
+            "flashSize": "${{ matrix.flash_size }}",
+            "app": "firmware-${{ matrix.name }}.bin",
+            "merged": "merged-${{ matrix.name }}.bin"
+          }
+          EOF
 
       - name: Upload firmware artifact
         uses: actions/upload-artifact@v6
         with:
           name: firmware-${{ matrix.name }}
-          path: airplay2-receiver-${{ matrix.name }}.bin
+          path: dist/*
 
   release:
     if: github.event_name == 'push'
@@ -115,7 +155,7 @@ jobs:
       - name: Download all firmware artifacts
         uses: actions/download-artifact@v6
         with:
-          path: release-artifacts
+          path: dist
           pattern: firmware-*
           merge-multiple: true
 
@@ -130,24 +170,37 @@ jobs:
           # Check if release with this version already exists
           if gh release view "v$VERSION" > /dev/null 2>&1; then
             echo "Release v$VERSION already exists, auto-incrementing..."
-
-            # Get the latest release tag and extract version
             LATEST_TAG=$(gh release list --limit 1 --json tagName -q '.[0].tagName')
             LATEST_VERSION=${LATEST_TAG#v}
-
-            # Parse major.minor.patch
             IFS='.' read -r MAJOR MINOR PATCH <<< "$LATEST_VERSION"
-
-            # Increment patch version
             NEW_PATCH=$((PATCH + 1))
             VERSION="${MAJOR}.${MINOR}.${NEW_PATCH}"
             BUMPED=true
-
             echo "New version: $VERSION"
           fi
 
           echo "version=$VERSION" >> "$GITHUB_OUTPUT"
           echo "bumped=$BUMPED" >> "$GITHUB_OUTPUT"
+
+      - name: Assemble manifest.json
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          {
+            echo "{"
+            echo "  \"version\": \"${VERSION}\","
+            echo "  \"boards\": ["
+            FIRST=1
+            for f in $(ls dist/manifest-*.json | sort); do
+              if [ $FIRST -eq 0 ]; then echo "    ,"; fi
+              sed 's/^/    /' "$f"
+              FIRST=0
+            done
+            echo "  ]"
+            echo "}"
+          } > dist/manifest.json
+          rm -f dist/manifest-*.json
+          echo "--- manifest.json ---"; cat dist/manifest.json
+          echo "--- assets ---"; ls -l dist
 
       - name: Update version.txt
         if: steps.version.outputs.bumped == 'true'
@@ -164,6 +217,8 @@ jobs:
         with:
           tag_name: v${{ steps.version.outputs.version }}
           name: v${{ steps.version.outputs.version }}
-          files: release-artifacts/*.bin
+          files: |
+            dist/*.bin
+            dist/manifest.json
           make_latest: true
           generate_release_notes: true

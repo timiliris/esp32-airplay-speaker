@@ -72,7 +72,7 @@ static void apply_channel_mix(int16_t *buf, size_t frames) {
     return; // stereo: zero-cost no-op
   for (size_t i = 0; i < frames; i++) {
     int16_t l = buf[2 * i], r = buf[2 * i + 1];
-    int16_t v = (mode == 1) ? (int16_t)(((int32_t)l + (int32_t)r) / 2)
+    int16_t v = (mode == 1)   ? (int16_t)(((int32_t)l + (int32_t)r) / 2)
                 : (mode == 2) ? l
                               : r;
     buf[2 * i] = v;

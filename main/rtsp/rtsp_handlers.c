@@ -1079,7 +1079,8 @@ static void handle_setup(int socket, rtsp_conn_t *conn,
 
   // Handle initial SETUP vs stream SETUP
   if (!request_has_streams) {
-#if defined(CONFIG_AIRPLAY_FORCE_V1) || defined(CONFIG_AIRPLAY_ALLOW_LEGACY_RAOP)
+#if defined(CONFIG_AIRPLAY_FORCE_V1) || \
+    defined(CONFIG_AIRPLAY_ALLOW_LEGACY_RAOP)
     // Classic RAOP (AirPlay v1) SETUP has no bplist body — transport info is
     // in the RTSP "Transport:" header. The presence of that header cleanly
     // distinguishes a legacy RAOP sender from an AirPlay 2 initial SETUP
@@ -1395,10 +1396,9 @@ static void parse_progress(const char *progress_str, uint32_t sample_rate,
     // Values are attacker-supplied; unsigned subtraction would underflow to a
     // huge value if current/end precede start.  Only compute when the ordering
     // is sane and sample_rate is non-zero, otherwise report 0.
-    meta->position_secs =
-        (sample_rate > 0 && current >= start)
-            ? (uint32_t)((current - start) / sample_rate)
-            : 0;
+    meta->position_secs = (sample_rate > 0 && current >= start)
+                              ? (uint32_t)((current - start) / sample_rate)
+                              : 0;
     meta->duration_secs = (sample_rate > 0 && end >= start)
                               ? (uint32_t)((end - start) / sample_rate)
                               : 0;
