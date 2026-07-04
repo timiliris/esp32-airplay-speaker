@@ -13,3 +13,7 @@ CONFIG_I2S_DO_IO=4
 CONFIG_I2S_GND_IO=-1
 # MCLK disabled (MAX98357A doesn't need it) — frees GPIO8/D9 for the ARGB strip.
 CONFIG_I2S_SCK_IO=-1
+# XIAO ESP32-S3 has 8 MB flash (the esp32s3 dev-board default is 16 MB). Set it
+# explicitly so idf.py builds (e.g. CI) match the PlatformIO board definition.
+CONFIG_ESPTOOLPY_FLASHSIZE_8MB=y
+CONFIG_ESPTOOLPY_FLASHSIZE="8MB"
