@@ -90,12 +90,10 @@ jobs:
             flash_size: "8MB"
             label: "SqueezeAMP (ESP32, BT, 8 Mo)"
             sdkconfig: "sdkconfig.defaults;sdkconfig.defaults.squeezeamp;sdkconfig.defaults.bt"
-          - name: squeezeamp-4m
-            env: squeezeamp-4m
-            target: esp32
-            flash_size: "4MB"
-            label: "SqueezeAMP (ESP32, 4 Mo)"
-            sdkconfig: "sdkconfig.defaults;sdkconfig.defaults.squeezeamp-4m"
+          # squeezeamp-4m is intentionally omitted: the web-UI SPIFFS image
+          # overflows the 4 MB layout's ~188 KB storage partition
+          # (SpiffsFullError). Re-add once the 4 MB `data/www` is trimmed or the
+          # storage partition enlarged in partitions-4m.csv.
           - name: esparagus-audio-brick-bt
             env: esparagus-audio-brick
             target: esp32
