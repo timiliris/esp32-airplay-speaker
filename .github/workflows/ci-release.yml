@@ -124,7 +124,10 @@ jobs:
 
       - name: Write manifest fragment
         run: |
+          # dist/ and its .bin files were created by the esp-idf-ci-action
+          # container as root; take ownership so this host step can write into it.
           mkdir -p dist
+          sudo chown -R "$(id -u):$(id -g)" dist
           cat > "dist/manifest-${{ matrix.name }}.json" <<EOF
           {
             "env": "${{ matrix.env }}",
