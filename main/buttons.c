@@ -152,7 +152,12 @@ static void configure_button(button_id_t id, int gpio, bool repeatable) {
   buttons[id].debounce_timer = NULL;
   buttons[id].repeat_timer = NULL;
 
-  if (gpio < 0) {
+  // gpio may come straight from NVS; reject out-of-range values before the
+  // `1ULL << gpio` shift below (a corrupted/oversized pin would be UB).
+  if (gpio < 0 || gpio >= GPIO_NUM_MAX) {
+    if (gpio >= GPIO_NUM_MAX) {
+      ESP_LOGW(TAG, "Button %d: invalid GPIO %d ignored", id, gpio);
+    }
     return;
   }
 
@@ -180,6 +185,16 @@ static void configure_button(button_id_t id, int gpio, bool repeatable) {
       .intr_type = GPIO_INTR_ANYEDGE,
   };
   gpio_config(&io_conf);
+
+  // The ISR calls xTimerResetFromISR on the debounce timer; if timer creation
+  // failed, registering the ISR would dereference a NULL handle on the first
+  // edge.
+  if (buttons[id].debounce_timer == NULL) {
+    ESP_LOGE(TAG,
+             "Button %d: debounce timer creation failed; interrupt not enabled",
+             id);
+    return;
+  }
 
   gpio_isr_handler_add(gpio, gpio_isr_handler, (void *)(intptr_t)id);
 

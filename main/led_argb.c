@@ -498,6 +498,17 @@ static void argb_stop(void) {
     for (int i = 0; i < 200 && s_task != NULL; i++) {
       vTaskDelay(pdMS_TO_TICKS(5));
     }
+    if (s_task != NULL) {
+      // The render task didn't exit within the timeout (e.g. starved under
+      // load). Freeing its frame/output buffers now would be a use-after-free
+      // the moment it resumes, so leave them allocated (a safe leak) and keep
+      // s_task_stop set so the task exits on its own. Do NOT clear s_task_stop
+      // here.
+      ESP_LOGE(
+          TAG,
+          "strip render task did not stop in time; buffers left allocated");
+      return;
+    }
   }
   s_task_stop = false;
 

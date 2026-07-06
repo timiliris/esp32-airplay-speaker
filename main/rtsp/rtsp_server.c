@@ -102,7 +102,7 @@ static uint8_t *grow_buffer(uint8_t *old_buf, size_t old_size, size_t new_size,
 
 // Process buffered RTSP requests
 static void process_rtsp_buffer(client_slot_t *slot, uint8_t *buffer,
-                                size_t *buf_len) {
+                                size_t *buf_len, size_t buf_capacity) {
   while (*buf_len > 0 && !slot->should_stop) {
     const uint8_t *header_end = rtsp_find_header_end(buffer, *buf_len);
     if (!header_end) {
@@ -132,12 +132,25 @@ static void process_rtsp_buffer(client_slot_t *slot, uint8_t *buffer,
       break;
     }
 
-    // Null-terminate so strcasestr in parse_raw_header won't read past
-    // the message boundary (buffer capacity > total_len).
-    uint8_t saved = buffer[total_len];
-    buffer[total_len] = '\0';
-    rtsp_dispatch(slot->socket, slot->conn, buffer, total_len);
-    buffer[total_len] = saved;
+    // Null-terminate so strcasestr in parse_raw_header won't read past the
+    // message boundary. Only safe in place when there is a spare byte; when the
+    // message exactly fills the buffer (total_len == buf_capacity), writing
+    // buffer[total_len] would be one byte past the allocation, so dispatch on a
+    // bounded copy instead.
+    if (total_len < buf_capacity) {
+      uint8_t saved = buffer[total_len];
+      buffer[total_len] = '\0';
+      rtsp_dispatch(slot->socket, slot->conn, buffer, total_len);
+      buffer[total_len] = saved;
+    } else {
+      uint8_t *tmp = malloc(total_len + 1);
+      if (tmp) {
+        memcpy(tmp, buffer, total_len);
+        tmp[total_len] = '\0';
+        rtsp_dispatch(slot->socket, slot->conn, tmp, total_len);
+        free(tmp);
+      }
+    }
     free(header_str);
 
     if (*buf_len > total_len) {
@@ -226,7 +239,7 @@ static void client_task(void *pvParameters) {
         }
 
         buf_len += (size_t)block_len;
-        process_rtsp_buffer(slot, buffer, &buf_len);
+        process_rtsp_buffer(slot, buffer, &buf_len, buf_capacity);
       }
       goto cleanup;
     }
@@ -255,7 +268,7 @@ static void client_task(void *pvParameters) {
       break;
     }
     buf_len += (size_t)recv_len;
-    process_rtsp_buffer(slot, buffer, &buf_len);
+    process_rtsp_buffer(slot, buffer, &buf_len, buf_capacity);
   }
 
 cleanup:
