@@ -364,6 +364,13 @@ static void matrix_stop(void) {
     for (int i = 0; i < 200 && s_task != NULL; i++) {
       vTaskDelay(pdMS_TO_TICKS(5));
     }
+    if (s_task != NULL) {
+      // Task still running (starved). Releasing its GPIOs now would let it
+      // drive pins we've handed back. Leave them held and keep s_task_stop set
+      // so it exits on its own.
+      ESP_LOGE(TAG, "matrix render task did not stop in time; GPIOs left held");
+      return;
+    }
   }
   s_task_stop = false;
 

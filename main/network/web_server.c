@@ -212,6 +212,18 @@ static void auth_issue_token(char out[AUTH_TOKEN_HEX + 1]) {
   memcpy(out, hex, sizeof(hex));
 }
 
+// Constant-time equality: compare all n bytes regardless of where they differ,
+// so an attacker can't time-probe a session token byte by byte.
+static bool ct_equal(const char *a, const char *b, size_t n) {
+  const volatile unsigned char *pa = (const volatile unsigned char *)a;
+  const volatile unsigned char *pb = (const volatile unsigned char *)b;
+  unsigned char diff = 0;
+  for (size_t i = 0; i < n; i++) {
+    diff |= (unsigned char)(pa[i] ^ pb[i]);
+  }
+  return diff == 0;
+}
+
 bool web_server_auth_token_valid(const char *tok) {
   if (!tok || strlen(tok) != AUTH_TOKEN_HEX) {
     return false;
@@ -219,7 +231,7 @@ bool web_server_auth_token_valid(const char *tok) {
   int64_t now = esp_timer_get_time();
   for (int i = 0; i < AUTH_MAX_TOKENS; i++) {
     if (s_tokens[i].used && s_tokens[i].expires_us > now &&
-        strncmp(s_tokens[i].token, tok, AUTH_TOKEN_HEX) == 0) {
+        ct_equal(s_tokens[i].token, tok, AUTH_TOKEN_HEX)) {
       return true;
     }
   }
@@ -360,6 +372,16 @@ static esp_err_t auth_setup_handler(httpd_req_t *req) {
   return ESP_OK;
 }
 
+// Brute-force throttle for the login endpoint: after too many consecutive bad
+// passwords, refuse further attempts for a lockout window. Combined with a
+// fixed per-failure delay this turns the tiny 4-char keyspace from
+// seconds-to-exhaust into something impractical to grind online. State is
+// global (single admin).
+#define LOGIN_MAX_FAILURES 5
+#define LOGIN_LOCKOUT_US   (30 * 1000000LL) // 30 s
+static int s_login_failures = 0;
+static int64_t s_login_lockout_until_us = 0;
+
 static esp_err_t auth_login_handler(httpd_req_t *req) {
   /* No password configured -> 400 no_password. */
   if (!settings_has_device_password()) {
@@ -377,6 +399,15 @@ static esp_err_t auth_login_handler(httpd_req_t *req) {
     httpd_resp_send(req, json_str, HTTPD_RESP_USE_STRLEN);
     free(json_str);
     cJSON_Delete(response);
+    return ESP_OK;
+  }
+
+  /* Locked out after too many failures: refuse without even checking. */
+  if (esp_timer_get_time() < s_login_lockout_until_us) {
+    httpd_resp_set_status(req, "429 Too Many Requests");
+    httpd_resp_set_type(req, "application/json");
+    httpd_resp_send(req, "{\"success\":false,\"error\":\"locked_out\"}",
+                    HTTPD_RESP_USE_STRLEN);
     return ESP_OK;
   }
 
@@ -404,6 +435,8 @@ static esp_err_t auth_login_handler(httpd_req_t *req) {
 
   cJSON *response = cJSON_CreateObject();
   if (settings_check_device_password(pw)) {
+    s_login_failures = 0; // reset throttle on success
+    s_login_lockout_until_us = 0;
     char token[AUTH_TOKEN_HEX + 1];
     auth_issue_token(token);
     cJSON_AddBoolToObject(response, "success", true);
@@ -419,6 +452,13 @@ static esp_err_t auth_login_handler(httpd_req_t *req) {
     httpd_resp_send(req, json_str, HTTPD_RESP_USE_STRLEN);
     free(json_str);
   } else {
+    // Fixed delay per bad guess, plus a lockout once failures pile up.
+    vTaskDelay(pdMS_TO_TICKS(300));
+    if (++s_login_failures >= LOGIN_MAX_FAILURES) {
+      s_login_lockout_until_us = esp_timer_get_time() + LOGIN_LOCKOUT_US;
+      s_login_failures = 0;
+      ESP_LOGW(TAG, "login locked out after repeated failures");
+    }
     cJSON_AddBoolToObject(response, "success", false);
     char *json_str = cJSON_Print(response);
     if (!json_str) {
@@ -466,6 +506,11 @@ static esp_err_t speedtest_ping_handler(httpd_req_t *req) {
 #define SPEEDTEST_CHUNK     2048
 
 static esp_err_t speedtest_download_handler(httpd_req_t *req) {
+  // Gate this behind auth so an unauthenticated caller can't repeatedly pull
+  // 16 MB and saturate the link / CPU (DoS). No-op in setup mode (no password).
+  if (check_auth(req) != ESP_OK) {
+    return ESP_FAIL;
+  }
   size_t bytes = 1024 * 1024;
   char qbuf[64];
   if (httpd_req_get_url_query_str(req, qbuf, sizeof(qbuf)) == ESP_OK) {
@@ -507,6 +552,10 @@ static esp_err_t speedtest_download_handler(httpd_req_t *req) {
 
 // Consumes a POST body and reports how many bytes were received.
 static esp_err_t speedtest_upload_handler(httpd_req_t *req) {
+  // Same DoS gate as the download side (no-op when no password is set).
+  if (check_auth(req) != ESP_OK) {
+    return ESP_FAIL;
+  }
   size_t total = req->content_len;
   // Cap the accepted body so a huge upload can't starve audio (unbounded DoS).
   if (total > SPEEDTEST_MAX_BYTES) {

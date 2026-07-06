@@ -131,13 +131,29 @@ void audio_receiver_set_format(const audio_format_t *format) {
   receiver.realtime_stream->format = *format;
   receiver.buffered_stream->format = *format;
 
-  audio_decoder_destroy(receiver.decoder);
-  receiver.decoder = NULL;
-
+  // Swap the decoder WITHOUT freeing it out from under the producer task. Both
+  // streams share &receiver, so the producer reads this exact `decoder` field
+  // via state->decoder. Create the new decoder, publish it (single-word pointer
+  // write, atomic on Xtensa) so the producer picks it up on its next frame, and
+  // only THEN free the old one — after a short settle so any decode already in
+  // flight on it has returned. Previously the old decoder was destroyed
+  // immediately, freeing it while a producer could still be inside
+  // audio_decoder_decode() on it: a use-after-free triggerable by a second
+  // ANNOUNCE mid-stream.
   audio_decoder_config_t cfg = {.format = *format};
-  receiver.decoder = audio_decoder_create(&cfg);
-  if (!receiver.decoder) {
+  audio_decoder_t *new_decoder = audio_decoder_create(&cfg);
+  audio_decoder_t *old_decoder = receiver.decoder;
+  receiver.decoder = new_decoder;
+  if (!new_decoder) {
     ESP_LOGW(TAG, "Decoder not initialized for codec: %s", format->codec);
+  }
+  if (old_decoder) {
+    // Comfortably longer than a single-frame decode, so an in-flight decode on
+    // the old pointer completes before we free it. (Format changes are rare —
+    // this small delay only affects (re-)ANNOUNCE, never steady-state
+    // playback.)
+    vTaskDelay(pdMS_TO_TICKS(30));
+    audio_decoder_destroy(old_decoder);
   }
 
   audio_timing_set_format(&receiver.timing, format);

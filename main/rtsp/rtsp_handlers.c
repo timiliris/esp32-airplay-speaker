@@ -786,7 +786,10 @@ static void parse_sdp(rtsp_conn_t *conn, const char *sdp, size_t len) {
                          &frame_len, &compat, &bit_depth, &pb, &mb, &kb,
                          &num_ch, &max_run, &max_frame, &avg_rate, &rate);
     if (matched >= 7) {
-      format.max_samples_per_frame = frame_len;
+      // frame_len is untrusted (SDP). The decode buffer is sized to
+      // MAX_SAMPLES_PER_FRAME, so clamp — an over-large value would overrun it.
+      format.max_samples_per_frame =
+          frame_len > MAX_SAMPLES_PER_FRAME ? MAX_SAMPLES_PER_FRAME : frame_len;
       format.sample_size = bit_depth;
       format.rice_history_mult = pb;
       format.rice_initial_history = mb;
@@ -1328,7 +1331,11 @@ static void parse_dmap_metadata_depth(const uint8_t *data, size_t len,
                         ((uint32_t)data[pos + 2] << 8) | data[pos + 3];
     pos += 4;
 
-    if (pos + item_len > len) {
+    // Overflow-safe: the loop guarantees pos <= len, so len - pos never
+    // underflows. (The old `pos + item_len > len` wraps at 32 bits when
+    // item_len is near UINT32_MAX, letting a crafted length pass the check and
+    // walk off the buffer.)
+    if (item_len > len - pos) {
       break; // Malformed
     }
 

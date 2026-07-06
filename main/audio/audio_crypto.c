@@ -78,6 +78,13 @@ int audio_crypto_decrypt_rtp(const audio_encrypt_t *encrypt,
 
     size_t ciphertext_len = input_len - 8;
 
+    // The plaintext (ciphertext minus the Poly1305 tag) must fit the output
+    // buffer — the other branches check this, this one didn't.
+    if (ciphertext_len - crypto_aead_chacha20poly1305_ietf_ABYTES >
+        output_capacity) {
+      return -1;
+    }
+
     unsigned long long decrypted_len = 0;
     int ret = crypto_aead_chacha20poly1305_ietf_decrypt(
         output, &decrypted_len, NULL, input, ciphertext_len, aad, aad_len,
