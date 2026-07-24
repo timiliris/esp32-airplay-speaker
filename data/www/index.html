@@ -1,8 +1,8 @@
-<!DOCTYPE html><html lang='fr'><head>
+<!DOCTYPE html><html lang='zh-CN'><head>
 <meta charset='UTF-8'>
 <meta name='viewport' content='width=device-width,initial-scale=1,viewport-fit=cover'>
 <meta name='theme-color' content='#08080a'>
-<title>AirPlay</title>
+<title>AirPlay音频接收器</title>
 <style>
 :root{
   --bg:#08080a;
@@ -20,7 +20,7 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html{-webkit-text-size-adjust:100%}
 body{
-  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text',system-ui,sans-serif;
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Microsoft YaHei',system-ui,sans-serif;
   color:var(--txt);background:var(--bg);min-height:100vh;
   padding:max(20px,env(safe-area-inset-top)) 18px calc(40px + env(safe-area-inset-bottom));
   line-height:1.45;-webkit-font-smoothing:antialiased;letter-spacing:-.01em;
@@ -317,7 +317,7 @@ select option{background:#18181b;color:var(--txt)}
 }
 </style></head><body>
 
-<!-- ── ONBOARDING (fresh device, no password set) ───────────── -->
+<!-- ── 初始化向导（全新设备，未设置密码） ───────────── -->
 <div id='view-onboard' class='view wrap' hidden>
   <div class='stage'>
     <div class='steps' id='ob-steps'>
@@ -330,77 +330,77 @@ select option{background:#18181b;color:var(--txt)}
         <path d='M5 17H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-1'/>
         <path d='M12 14.5l5.5 6.5h-11l5.5-6.5z' fill='currentColor' stroke='none'/>
       </svg>
-      <h1>Bienvenue</h1>
-      <div class='lead'>Configurons ensemble ton récepteur AirPlay. Quelques étapes suffisent.</div>
-      <div class='actions'><button class='btn' onclick='obNext()'>Commencer</button></div>
+      <h1>欢迎使用</h1>
+      <div class='lead'>我们一起来配置你的AirPlay音频接收器，仅需几步即可完成。</div>
+      <div class='actions'><button class='btn' onclick='obNext()'>开始配置</button></div>
     </div>
 
     <!-- step 2 · device name -->
     <div class='step' data-step='2'>
-      <h1>Nom de l'appareil</h1>
-      <div class='lead'>Ce nom apparaîtra dans le menu AirPlay de tes appareils.</div>
+      <h1>设备名称</h1>
+      <div class='lead'>该名称将会显示在你设备的AirPlay播放列表内。</div>
       <div class='form'>
-        <div class='fg'><label class='fld'>Nom AirPlay</label><input type='text' id='ob-name' placeholder='Mon enceinte'></div>
+        <div class='fg'><label class='fld'>AirPlay名称</label><input type='text' id='ob-name' placeholder='我的音箱'></div>
       </div>
-      <div class='actions'><button class='btn' onclick='obNext()'>Continuer</button>
-        <button class='btn ghost' onclick='obBack()'>Retour</button></div>
+      <div class='actions'><button class='btn' onclick='obNext()'>继续</button>
+        <button class='btn ghost' onclick='obBack()'>返回</button></div>
     </div>
 
     <!-- step 3 · admin password -->
     <div class='step' data-step='3'>
-      <h1>Mot de passe</h1>
-      <div class='lead'>Protège les réglages de ton appareil. Il sera demandé pour modifier la configuration.</div>
+      <h1>管理密码</h1>
+      <div class='lead'>用于保护设备设置，修改配置时需要输入此密码。</div>
       <div class='form'>
-        <div class='fg'><label class='fld'>Mot de passe</label><input type='password' id='ob-pw' placeholder='Au moins 4 caractères'></div>
-        <div class='fg'><label class='fld'>Confirmer</label><input type='password' id='ob-pw2' placeholder='Confirme le mot de passe'></div>
+        <div class='fg'><label class='fld'>密码</label><input type='password' id='ob-pw' placeholder='至少4位字符'></div>
+        <div class='fg'><label class='fld'>确认密码</label><input type='password' id='ob-pw2' placeholder='再次输入密码'></div>
         <div id='ob-pw-msg'></div>
       </div>
-      <div class='actions'><button class='btn' onclick='obNext()'>Continuer</button>
-        <button class='btn ghost' onclick='obBack()'>Retour</button></div>
+      <div class='actions'><button class='btn' onclick='obNext()'>继续</button>
+        <button class='btn ghost' onclick='obBack()'>返回</button></div>
     </div>
 
     <!-- step 4 · wifi -->
     <div class='step' data-step='4'>
-      <h1>Réseau WiFi</h1>
-      <div class='lead'>Choisis le réseau auquel l'appareil doit se connecter.</div>
+      <h1>无线网络</h1>
+      <div class='lead'>选择设备需要接入的WiFi网络。</div>
       <div class='form'>
-        <button class='btn sec' onclick='obScan()'>Rechercher les réseaux</button>
+        <button class='btn sec' onclick='obScan()'>扫描网络</button>
         <div id='ob-wifi-list' class='wifi-list'></div>
-        <div class='fg'><label class='fld'>Nom du réseau</label><input type='text' id='ob-ssid' placeholder='Sélectionne ou saisis un réseau'></div>
-        <div class='fg'><label class='fld'>Mot de passe</label><input type='password' id='ob-wpass' placeholder='Mot de passe WiFi'></div>
+        <div class='fg'><label class='fld'>网络名称</label><input type='text' id='ob-ssid' placeholder='选择或手动输入WiFi名称'></div>
+        <div class='fg'><label class='fld'>WiFi密码</label><input type='password' id='ob-wpass' placeholder='输入WiFi密码'></div>
         <div id='ob-wifi-msg'></div>
       </div>
-      <div class='actions'><button class='btn' onclick='obFinish()'>Terminer</button>
-        <button class='btn ghost' onclick='obBack()'>Retour</button></div>
+      <div class='actions'><button class='btn' onclick='obFinish()'>完成配置</button>
+        <button class='btn ghost' onclick='obBack()'>返回</button></div>
     </div>
 
     <!-- step 5 · finishing -->
     <div class='step' data-step='5'>
       <div class='spin'></div>
-      <h1>Configuration…</h1>
-      <div class='lead' id='ob-done-msg'>L'appareil redémarre et rejoint ton WiFi. Tu pourras le retrouver dans le menu AirPlay dans un instant.</div>
+      <h1>正在应用配置…</h1>
+      <div class='lead' id='ob-done-msg'>设备即将重启并连接WiFi，稍后你就可以在AirPlay列表找到它。</div>
     </div>
   </div>
 </div>
 
-<!-- ── LOGIN (password set, not authed) ─────────────────────── -->
+<!-- ── 登录界面（已设置密码，未授权） ─────────────────────── -->
 <div id='view-login' class='view wrap' hidden>
   <div class='stage'>
     <svg class='glyph' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'>
       <path d='M5 17H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-1'/>
       <path d='M12 14.5l5.5 6.5h-11l5.5-6.5z' fill='currentColor' stroke='none'/>
     </svg>
-    <h1>Verrouillé</h1>
-    <div class='lead'>Saisis le mot de passe pour accéder aux réglages.</div>
+    <h1>已锁定</h1>
+    <div class='lead'>请输入管理密码进入设置页面。</div>
     <div class='form'>
-      <div class='fg'><label class='fld'>Mot de passe</label><input type='password' id='login-pw' placeholder='Mot de passe' autofocus></div>
+      <div class='fg'><label class='fld'>密码</label><input type='password' id='login-pw' placeholder='输入密码' autofocus></div>
       <div id='login-msg'></div>
     </div>
-    <div class='actions'><button class='btn' onclick='doLogin()'>Déverrouiller</button></div>
+    <div class='actions'><button class='btn' onclick='doLogin()'>解锁进入</button></div>
   </div>
 </div>
 
-<!-- ── PANEL (authed) ───────────────────────────────────────── -->
+<!-- ── 设置主面板（登录成功） ───────────────────────────────────────── -->
 <div id='view-panel' class='view wrap' hidden>
 
 <!-- mobile top hero (hidden on desktop; the sidebar carries it) -->
@@ -410,10 +410,10 @@ select option{background:#18181b;color:var(--txt)}
     <path d='M12 14.5l5.5 6.5h-11l5.5-6.5z' fill='currentColor' stroke='none'/>
   </svg>
   <h1>AirPlay</h1>
-  <div class='sub' id='hdr-name'>Récepteur audio</div>
+  <div class='sub' id='hdr-name'>音频接收器</div>
 </div>
 
-<div id='status-bar' class='status'><span class='dot'></span><span class='st-txt'>Chargement…</span></div>
+<div id='status-bar' class='status'><span class='dot'></span><span class='st-txt'>加载中…</span></div>
 
 <!-- desktop sidebar: glyph + name + status mirror + vertical tab nav -->
 <aside class='side'>
@@ -423,25 +423,25 @@ select option{background:#18181b;color:var(--txt)}
       <path d='M12 14.5l5.5 6.5h-11l5.5-6.5z' fill='currentColor' stroke='none'/>
     </svg>
     <h1>AirPlay</h1>
-    <div class='sub' id='hdr-name2'>Récepteur audio</div>
+    <div class='sub' id='hdr-name2'>音频接收器</div>
   </div>
-  <div id='status-bar2' class='status'><span class='dot'></span><span class='st-txt'>Chargement…</span></div>
+  <div id='status-bar2' class='status'><span class='dot'></span><span class='st-txt'>加载中…</span></div>
   <nav class='side-nav'>
     <button type='button' class='nav-item' data-tab='lecture' onclick="setTab('lecture')">
       <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M5 16H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-1'/><path d='M12 13l5 6H7l5-6z' fill='currentColor' stroke='none'/></svg>
-      <span>Lecture</span>
+      <span>播放</span>
     </button>
     <button type='button' class='nav-item' data-tab='effets' onclick="setTab('effets')">
       <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3z'/><path d='M18.5 14l.8 2.2L21.5 17l-2.2.8-.8 2.2-.8-2.2L15.5 17l2.2-.8.8-2.2z'/></svg>
-      <span>Effets</span>
+      <span>灯光效果</span>
     </button>
     <button type='button' class='nav-item' data-tab='reglages' onclick="setTab('reglages')">
       <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><line x1='4' y1='7' x2='20' y2='7'/><circle cx='9' cy='7' r='2.4' fill='var(--bg)'/><line x1='4' y1='17' x2='20' y2='17'/><circle cx='15' cy='17' r='2.4' fill='var(--bg)'/></svg>
-      <span>Réglages</span>
+      <span>参数设置</span>
     </button>
     <button type='button' class='nav-item' data-tab='systeme' onclick="setTab('systeme')">
       <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='7' y='7' width='10' height='10' rx='2'/><line x1='10' y1='4' x2='10' y2='7'/><line x1='14' y1='4' x2='14' y2='7'/><line x1='10' y1='17' x2='10' y2='20'/><line x1='14' y1='17' x2='14' y2='20'/><line x1='4' y1='10' x2='7' y2='10'/><line x1='4' y1='14' x2='7' y2='14'/><line x1='17' y1='10' x2='20' y2='10'/><line x1='17' y1='14' x2='20' y2='14'/></svg>
-      <span>Système</span>
+      <span>系统</span>
     </button>
   </nav>
 </aside>
@@ -449,11 +449,11 @@ select option{background:#18181b;color:var(--txt)}
 <!-- main area: one .tab section per group of cards -->
 <div class='main'>
 
-<!-- ════ TAB · LECTURE ════ -->
+<!-- ════ 标签 · 播放 ════ -->
 <section class='tab' data-tab='lecture'>
 
-<div class='grp'><h2>En lecture</h2><div class='card'><div class='pad'>
-  <div id='np-empty' class='np-empty'>Rien en lecture</div>
+<div class='grp'><h2>正在播放</h2><div class='card'><div class='pad'>
+  <div id='np-empty' class='np-empty'>暂无播放内容</div>
   <div id='np-info' style='display:none'>
     <div class='np-title' id='np-title'></div>
     <div class='np-artist' id='np-artist'></div>
@@ -465,38 +465,38 @@ select option{background:#18181b;color:var(--txt)}
   </div>
 </div></div></div>
 
-<div class='grp'><h2>Volume</h2><div class='card'><div class='pad'>
-  <div class='vol-head'><span class='t'>Niveau maximum</span><span class='v'><span id='gain-val'>100</span><small>%</small></span></div>
+<div class='grp'><h2>音量</h2><div class='card'><div class='pad'>
+  <div class='vol-head'><span class='t'>最大输出电平</span><span class='v'><span id='gain-val'>100</span><small>%</small></span></div>
   <div class='vol-row'>
-    <button type='button' class='vol-btn' id='vol-down' onclick='nudgeVol("down")' aria-label='Baisser le volume'>−</button>
+    <button type='button' class='vol-btn' id='vol-down' onclick='nudgeVol("down")' aria-label='减小音量'>−</button>
     <input type='range' id='gain-slider' min='0' max='100' step='1' value='100'>
-    <button type='button' class='vol-btn' id='vol-up' onclick='nudgeVol("up")' aria-label='Monter le volume'>+</button>
+    <button type='button' class='vol-btn' id='vol-up' onclick='nudgeVol("up")' aria-label='增大音量'>+</button>
   </div>
-  <div class='hint'>Plafonne la sortie de l'ampli. Baisse-le si le son sature ou est trop fort sur tes haut-parleurs ; règle ensuite le volume normalement depuis l'iPhone.</div>
+  <div class='hint'>限制功放最大输出。如果声音破音、音量过大可以降低；之后在iPhone端正常调节播放音量。</div>
   <div id='gain-msg'></div>
 </div></div></div>
 
-<div class='grp'><h2>Égaliseur</h2><div class='card'><div class='pad'>
+<div class='grp'><h2>均衡器</h2><div class='card'><div class='pad'>
   <div class='row' style='padding:0 0 14px;border-bottom:.5px solid var(--hair);margin-bottom:14px'>
-    <span class='lbl' style='color:var(--txt)'>Tonalité</span>
+    <span class='lbl' style='color:var(--txt)'>音调均衡</span>
     <label class='sw' style='margin-left:auto'>
       <input type='checkbox' id='eq-on'><span class='track'></span>
     </label>
   </div>
-  <div class='fg'><label class='fld'>Préréglage</label>
+  <div class='fg'><label class='fld'>预设方案</label>
     <select id='eq-preset'>
-      <option value='perso'>Perso</option>
-      <option value='flat'>Plat</option>
-      <option value='bass'>Basses+</option>
-      <option value='voice'>Voix</option>
-      <option value='pop'>Pop</option>
-      <option value='live'>Live</option>
-      <option value='sat'>Satellites</option>
+      <option value='perso'>自定义</option>
+      <option value='flat'>平直</option>
+      <option value='bass'>增强低音</option>
+      <option value='voice'>人声模式</option>
+      <option value='pop'>流行</option>
+      <option value='live'>现场</option>
+      <option value='sat'>卫星音箱</option>
     </select>
   </div>
-  <div class='fg'><label class='fld'>Filtre anti-graves (petits HP)</label>
+  <div class='fg'><label class='fld'>高通滤波（小型扬声器）</label>
     <select id='eq-hpf'>
-      <option value='0'>Désactivé</option>
+      <option value='0'>关闭</option>
       <option value='80'>80 Hz</option>
       <option value='100'>100 Hz</option>
       <option value='120'>120 Hz</option>
@@ -506,817 +506,77 @@ select option{background:#18181b;color:var(--txt)}
       <option value='300'>300 Hz</option>
       <option value='400'>400 Hz</option>
     </select>
-    <div class='hint' style='margin-top:8px'>Coupe les graves pour protéger les petits haut-parleurs (satellites).</div>
+    <div class='hint' style='margin-top:8px'>滤除低频，保护小型扬声器（卫星箱）。</div>
   </div>
   <div id='eq-bands'>
     <div class='fg'>
-      <div class='vol-head' style='margin-bottom:10px'><span class='t'>Graves</span>
+      <div class='vol-head' style='margin-bottom:10px'><span class='t'>低音</span>
         <span class='v' style='font-size:24px'><span id='eq-bass-val'>0</span><small> dB</small></span></div>
       <input type='range' id='eq-bass' min='-12' max='12' step='1' value='0'>
     </div>
     <div class='fg'>
-      <div class='vol-head' style='margin-bottom:10px'><span class='t'>Médiums</span>
+      <div class='vol-head' style='margin-bottom:10px'><span class='t'>中音</span>
         <span class='v' style='font-size:24px'><span id='eq-mid-val'>0</span><small> dB</small></span></div>
       <input type='range' id='eq-mid' min='-12' max='12' step='1' value='0'>
     </div>
     <div class='fg' style='margin-bottom:0'>
-      <div class='vol-head' style='margin-bottom:10px'><span class='t'>Aigus</span>
+      <div class='vol-head' style='margin-bottom:10px'><span class='t'>高音</span>
         <span class='v' style='font-size:24px'><span id='eq-treble-val'>0</span><small> dB</small></span></div>
       <input type='range' id='eq-treble' min='-12' max='12' step='1' value='0'>
     </div>
   </div>
-  <div class='hint'>Réglage logiciel des graves (~120 Hz), médiums (~1 kHz) et aigus (~8 kHz), de −12 à +12 dB. Plat = neutre.</div>
+  <div class='hint'>三段软件均衡：低音(~120Hz)、中音(~1kHz)、高音(~8kHz)，调节范围 -12 ~ +12dB。平直=无增益。</div>
   <div id='eq-msg'></div>
 </div></div></div>
 
-<div class='grp' id='eq-card' style='display:none'><h2>Audio</h2><div class='card'>
-  <a class='row' href='/eq'><span>Égaliseur 15 bandes</span><span class='chev'>›</span></a>
+<div class='grp' id='eq-card' style='display:none'><h2>音频</h2><div class='card'>
+  <a class='row' href='/eq'><span>15段均衡器</span><span class='chev'>›</span></a>
 </div></div>
 
 </section><!-- /tab lecture -->
 
-<!-- ════ TAB · EFFETS ════ -->
+<!-- ════ 标签 · 灯光效果 ════ -->
 <section class='tab' data-tab='effets'>
 
-<div class='grp'><h2>Effets lumineux</h2><div class='card'><div class='pad'>
+<div class='grp'><h2>ARGB灯光效果</h2><div class='card'><div class='pad'>
   <div class='row' style='padding:0 0 14px;border-bottom:.5px solid var(--hair);margin-bottom:14px'>
-    <span class='lbl' style='color:var(--txt)'>Bande LED (ARGB)</span>
+    <span class='lbl' style='color:var(--txt)'>LED灯带(ARGB)</span>
     <label class='sw' style='margin-left:auto'>
       <input type='checkbox' id='ag-enabled'><span class='track'></span>
     </label>
   </div>
-  <div class='fg'><label class='fld'>Effet</label>
+  <div class='fg'><label class='fld'>效果模式</label>
     <select id='ag-effect'>
-      <optgroup label='Réactifs (musique)'>
-        <option value='0'>VU-mètre</option>
-        <option value='1'>Spectre</option>
-        <option value='2'>Pulsation basses</option>
-        <option value='5'>VU centre</option>
-        <option value='6'>Strobe basses</option>
-        <option value='11'>Niveau → couleur</option>
+      <optgroup label='音乐联动'>
+        <option value='0'>音量表</option>
+        <option value='1'>频谱</option>
+        <option value='2'>低频脉动</option>
+        <option value='5'>居中音量条</option>
+        <option value='6'>低频频闪</option>
+        <option value='11'>音量映射色彩</option>
       </optgroup>
-      <optgroup label='Ambiance'>
-        <option value='3'>Arc-en-ciel</option>
-        <option value='4'>Veilleuse</option>
-        <option value='7'>Couleur fixe</option>
-        <option value='8'>Respiration</option>
-        <option value='9'>Comète</option>
-        <option value='10'>Scintillement</option>
+      <optgroup label='氛围静态'>
+        <option value='3'>彩虹</option>
+        <option value='4'>夜灯</option>
+        <option value='7'>固定单色</option>
+        <option value='8'>呼吸灯</option>
+        <option value='9'>彗星拖尾</option>
+        <option value='10'>闪烁星光</option>
       </optgroup>
     </select>
   </div>
   <div class='row' id='ag-color-fg' style='padding:0 0 14px;border-bottom:.5px solid var(--hair);margin-bottom:14px'>
-    <span class='lbl' style='color:var(--txt)'>Couleur</span>
+    <span class='lbl' style='color:var(--txt)'>灯光颜色</span>
     <input type='color' id='ag-color' value='#2080ff' style='margin-left:auto;width:54px;height:34px;border:none;background:none;padding:0;cursor:pointer'>
   </div>
   <div class='fg' id='ag-speed-fg'>
-    <div class='vol-head' style='margin-bottom:10px'><span class='t'>Vitesse</span>
+    <div class='vol-head' style='margin-bottom:10px'><span class='t'>动画速度</span>
       <span class='v' style='font-size:24px'><span id='ag-speed-val'>5</span><small>/10</small></span></div>
     <input type='range' id='ag-speed' min='1' max='10' step='1' value='5'>
   </div>
   <div class='fg' id='ag-br-fg'>
-    <div class='vol-head' style='margin-bottom:10px'><span class='t'>Luminosité</span>
+    <div class='vol-head' style='margin-bottom:10px'><span class='t'>亮度</span>
       <span class='v' style='font-size:24px'><span id='ag-br-val'>128</span><small>/255</small></span></div>
     <input type='range' id='ag-br' min='0' max='255' step='1' value='128'>
   </div>
-  <div class='fg' id='ag-count-fg' style='margin-bottom:0'>
-    <label class='fld'>Nombre de LED</label>
-    <input type='number' id='ag-count' min='1' max='300' step='1' value='30'>
-  </div>
-  <details class='disc'>
-    <summary><span class='tw'>›</span>Broche (avancé)</summary>
-    <div class='pins' style='grid-template-columns:1fr'>
-      <div><label class='fld'>Data GPIO</label><input type='number' id='ag-gpio' min='-1' max='48' value='8'></div>
-    </div>
-    <div class='hint'>Broche data de la bande (WS2812 / WS2812B / SK6812). Sur le XIAO, D9 = GPIO 8.</div>
-  </details>
-  <div class='hint'>Pilote une bande LED adressable. Les effets réagissent à la musique ; « Arc-en-ciel » et « Veilleuse » sont des ambiances. ⚡ Alimente la bande en 5V externe, masse commune avec l'ESP.</div>
-  <div id='ag-msg'></div>
-</div></div></div>
-
-</section><!-- /tab effets -->
-
-<!-- ════ TAB · RÉGLAGES ════ -->
-<section class='tab' data-tab='reglages'>
-
-<div class='grp'><h2>Réseau WiFi</h2><div class='card'><div class='pad'>
-  <button class='btn sec' onclick='scanWiFi()'>Rechercher les réseaux</button>
-  <div id='wifi-list' class='wifi-list'></div>
-  <div class='fg'><label class='fld'>Nom du réseau</label><input type='text' id='wifi-ssid' placeholder='Sélectionne ou saisis un réseau'></div>
-  <div class='fg'><label class='fld'>Mot de passe</label><input type='password' id='wifi-pass' placeholder='Mot de passe WiFi'></div>
-  <button class='btn' onclick='saveWiFi()'>Se connecter</button>
-  <div id='wifi-msg'></div>
-</div></div></div>
-
-<div class='grp'><h2>Appareil</h2><div class='card'><div class='pad'>
-  <div class='fg'><label class='fld'>Nom AirPlay</label><input type='text' id='dev-name' placeholder='Mon enceinte'></div>
-  <button class='btn sec' onclick='saveName()'>Enregistrer le nom</button>
-  <div id='name-msg'></div>
-</div></div></div>
-
-<div class='grp'><h2>Boutons physiques</h2><div class='card'><div class='pad'>
-  <div class='pins btn-pins'>
-    <div><label class='fld'>Lecture / Pause</label><input type='number' id='btn-pp' min='-1' max='48' step='1' value='-1'></div>
-    <div><label class='fld'>Volume +</label><input type='number' id='btn-vu' min='-1' max='48' step='1' value='-1'></div>
-    <div><label class='fld'>Volume −</label><input type='number' id='btn-vd' min='-1' max='48' step='1' value='-1'></div>
-    <div><label class='fld'>Suivant</label><input type='number' id='btn-nx' min='-1' max='48' step='1' value='-1'></div>
-    <div><label class='fld'>Précédent</label><input type='number' id='btn-pv' min='-1' max='48' step='1' value='-1'></div>
-  </div>
-  <div class='hint'>Assigne une broche GPIO (0–48) à chaque fonction. −1 = désactivé · un redémarrage est nécessaire pour appliquer.</div>
-  <button class='btn sec' onclick='saveButtons()'>Enregistrer</button>
-  <div id='btn-msg'></div>
-</div></div></div>
-
-<div class='grp'><h2>Protection &amp; Ampli</h2><div class='card'><div class='pad'>
-  <!-- CANAL DE SORTIE -->
-  <div class='fg'><label class='fld'>Canal de sortie</label>
-    <select id='pr-chan'>
-      <option value='0'>Stéréo</option>
-      <option value='1'>Mono (L+R)</option>
-      <option value='2'>Gauche</option>
-      <option value='3'>Droite</option>
-    </select>
-  </div>
-  <div class='hint'>Pour une enceinte mono (un seul HP) : choisis « Mono (L+R) » pour ne perdre aucun canal.</div>
-  <!-- LIMITEUR anti-saturation -->
-  <div class='row' style='padding:18px 0 14px;border-top:.5px solid var(--hair);border-bottom:.5px solid var(--hair);margin:14px 0'>
-    <span class='lbl' style='color:var(--txt)'>Limiteur anti-saturation</span>
-    <label class='sw' style='margin-left:auto'>
-      <input type='checkbox' id='pr-lim'><span class='track'></span>
-    </label>
-  </div>
-  <div class='fg' id='pr-ceil-fg' style='margin-bottom:0'>
-    <div class='vol-head' style='margin-bottom:10px'><span class='t'>Plafond</span>
-      <span class='v' style='font-size:24px'><span id='pr-ceil-val'>-1</span><small> dB</small></span></div>
-    <input type='range' id='pr-ceil' min='-12' max='0' step='1' value='-1'>
-  </div>
-  <div class='hint'>Empêche la saturation quand le son pousse (protège les HP).</div>
-
-  <!-- VEILLE AMPLI -->
-  <div class='row' style='padding:18px 0 14px;border-top:.5px solid var(--hair);border-bottom:.5px solid var(--hair);margin:14px 0;color:var(--txt)'>
-    <span class='lbl' style='color:var(--txt);font-weight:600;font-size:13px;text-transform:uppercase;letter-spacing:.05em;color:var(--txt3)'>Veille ampli</span>
-  </div>
-  <div class='pins btn-pins' style='grid-template-columns:1fr 1fr;margin-bottom:14px'>
-    <div><label class='fld'>GPIO ampli</label><input type='number' id='pr-ampgpio' min='-1' max='48' step='1' value='-1'></div>
-    <div><label class='fld'>Veille après (min)</label>
-      <select id='pr-standby'>
-        <option value='0'>Jamais</option>
-        <option value='1'>1 min</option>
-        <option value='2'>2 min</option>
-        <option value='5'>5 min</option>
-        <option value='10'>10 min</option>
-        <option value='15'>15 min</option>
-        <option value='30'>30 min</option>
-        <option value='60'>60 min</option>
-        <option value='120'>120 min</option>
-      </select>
-    </div>
-  </div>
-  <div class='row' style='padding:0 0 14px;border-bottom:.5px solid var(--hair);margin-bottom:14px'>
-    <span class='lbl' style='color:var(--txt)'>Actif à l'état haut</span>
-    <label class='sw' style='margin-left:auto'>
-      <input type='checkbox' id='pr-acth'><span class='track'></span>
-    </label>
-  </div>
-  <div class='hint'>Câble le pin SD/mute de ton ampli sur ce GPIO : coupe l'ampli à l'arrêt (anti-souffle, anti-pop, éco). −1 = désactivé.</div>
-  <div id='pr-msg'></div>
-</div></div></div>
-
-<div class='grp'><h2>Home Assistant</h2><div class='card'><div class='pad'>
-  <div class='row' style='padding:0 0 14px;border-bottom:.5px solid var(--hair);margin-bottom:14px'>
-    <span class='lbl' style='color:var(--txt)'>Intégration MQTT</span>
-    <label class='sw' style='margin-left:auto'>
-      <input type='checkbox' id='mq-enabled'><span class='track'></span>
-    </label>
-  </div>
-  <div class='hint' style='margin-top:0;margin-bottom:14px'>Se connecte à un broker MQTT et crée automatiquement les entités (lecture, volume, égaliseur, matrice…) dans Home Assistant.</div>
-  <div class='fg'><label class='fld'>Serveur</label><input type='text' id='mq-host' placeholder='192.168.1.x'></div>
-  <div class='fg'><label class='fld'>Port</label><input type='number' id='mq-port' min='1' max='65535' step='1' value='1883' placeholder='1883' style='width:100%;padding:13px 15px;background:rgba(0,0,0,.28);border:1px solid var(--hair);border-radius:13px;color:var(--txt);font-size:16px;font-family:inherit;-moz-appearance:textfield'></div>
-  <div class='fg'><label class='fld'>Utilisateur</label><input type='text' id='mq-user' placeholder='(optionnel)'></div>
-  <div class='fg'><label class='fld'>Mot de passe</label><input type='password' id='mq-pass' placeholder='•••• (inchangé)'></div>
-  <div class='row' style='padding:0;border:none;min-height:0;margin-bottom:14px'>
-    <span class='lbl'>État</span>
-    <span class='val' id='mq-status' style='color:var(--txt2)'>–</span>
-  </div>
-  <button class='btn sec' onclick='saveMqtt()'>Enregistrer</button>
-  <div id='mq-msg'></div>
-</div></div></div>
-
-</section><!-- /tab reglages -->
-
-<!-- ════ TAB · SYSTÈME ════ -->
-<section class='tab' data-tab='systeme'>
-
-<div class='grp'><h2>Informations</h2><div class='card'>
-  <div class='row'><span class='lbl'>Adresse IP</span><span class='val' id='info-ip'>–</span></div>
-  <div class='row'><span class='lbl'>Réseau WiFi</span><span class='val' id='info-ssid'>–</span></div>
-  <div class='row'><span class='lbl'>Signal</span><span class='val' id='info-rssi'>–</span></div>
-  <div class='row'><span class='lbl'>Canal</span><span class='val' id='info-chan'>–</span></div>
-  <div class='row'><span class='lbl'>PHY</span><span class='val' id='info-phy'>–</span></div>
-  <div class='row'><span class='lbl'>Adresse MAC</span><span class='val' id='info-mac'>–</span></div>
-  <div class='row'><span class='lbl'>BSSID</span><span class='val' id='info-bssid'>–</span></div>
-  <div class='row'><span class='lbl'>Nom</span><span class='val' id='info-name'>–</span></div>
-  <div class='row'><span class='lbl'>Mémoire libre</span><span class='val' id='info-heap'>–</span></div>
-  <div class='row'><span class='lbl'>Firmware</span><span class='val' id='info-fw'>–</span></div>
-</div></div>
-
-<div class='grp'><h2>Mise à jour</h2><div class='card'><div class='pad'>
-  <div class='file'>
-    <input type='file' id='fw-file' accept='.bin' style='display:none'>
-    <button class='btn sec' onclick='document.getElementById("fw-file").click()'>Choisir un fichier</button>
-    <span class='fname' id='fw-name'>Aucun fichier</span>
-  </div>
-  <button class='btn' id='ota-btn' onclick='startOTA()' disabled>Installer le firmware</button>
-  <div id='ota-msg'></div>
-</div></div></div>
-
-<div class='grp'><h2>Outils</h2><div class='card'>
-  <a class='row' id='logs-link' href='/logs'><span>Journaux en direct</span><span class='chev'>›</span></a>
-  <a class='row' href='/speedtest'><span>Test de débit WiFi</span><span class='chev'>›</span></a>
-</div></div>
-
-<div class='grp'><h2>Système</h2><div class='card'>
-  <button class='btn danger' onclick='restart()' style='border-radius:0'>Redémarrer l'appareil</button>
-</div></div>
-
-</section><!-- /tab systeme -->
-
-<div class='foot'>AirPlay 2 Receiver · ESP32-S3</div>
-
-</div><!-- /main -->
-
-<!-- mobile fixed bottom tab bar (hidden on desktop) -->
-<nav class='tabbar'>
-  <button type='button' class='tb-item' data-tab='lecture' onclick="setTab('lecture')">
-    <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M5 16H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-1'/><path d='M12 13l5 6H7l5-6z' fill='currentColor' stroke='none'/></svg>
-    <span>Lecture</span>
-  </button>
-  <button type='button' class='tb-item' data-tab='effets' onclick="setTab('effets')">
-    <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><path d='M12 3l1.6 4.4L18 9l-4.4 1.6L12 15l-1.6-4.4L6 9l4.4-1.6L12 3z'/><path d='M18.5 14l.8 2.2L21.5 17l-2.2.8-.8 2.2-.8-2.2L15.5 17l2.2-.8.8-2.2z'/></svg>
-    <span>Effets</span>
-  </button>
-  <button type='button' class='tb-item' data-tab='reglages' onclick="setTab('reglages')">
-    <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><line x1='4' y1='7' x2='20' y2='7'/><circle cx='9' cy='7' r='2.4' fill='var(--bg)'/><line x1='4' y1='17' x2='20' y2='17'/><circle cx='15' cy='17' r='2.4' fill='var(--bg)'/></svg>
-    <span>Réglages</span>
-  </button>
-  <button type='button' class='tb-item' data-tab='systeme' onclick="setTab('systeme')">
-    <svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'><rect x='7' y='7' width='10' height='10' rx='2'/><line x1='10' y1='4' x2='10' y2='7'/><line x1='14' y1='4' x2='14' y2='7'/><line x1='10' y1='17' x2='10' y2='20'/><line x1='14' y1='17' x2='14' y2='20'/><line x1='4' y1='10' x2='7' y2='10'/><line x1='4' y1='14' x2='7' y2='14'/><line x1='17' y1='10' x2='20' y2='10'/><line x1='17' y1='14' x2='20' y2='14'/></svg>
-    <span>Système</span>
-  </button>
-</nav>
-
-</div><!-- /view-panel -->
-
-<script>
-function msg(id,txt,type){var e=document.getElementById(id);if(e){e.innerHTML='';var m=document.createElement('div');m.className='msg '+type;m.textContent=txt;e.appendChild(m);setTimeout(function(){e.innerHTML='';},4000);}}
-
-/* ── auto-reload across reboots ────────────────────────────── */
-/* boot_id from /api/system/info: changes every boot. We capture it on the
-   first successful loadInfo(); if a later poll shows a different one the
-   device rebooted out from under us and we reload the page. */
-var g_bootId=null;
-var g_watching=false;
-/* Poll /api/system/info until the device comes back with a *different*
-   boot_id than the one captured before the reboot (or, if we never had one,
-   simply until it becomes reachable again), then reload. */
-function watchReboot(msgId){
-  if(g_watching)return;
-  g_watching=true;
-  var was=g_bootId;
-  if(msgId)msg(msgId,'Redémarrage… rechargement automatique','info');
-  function poll(){
-    if(!g_watching)return;
-    var ctrl=new AbortController();var to=setTimeout(function(){ctrl.abort();},2500);
-    fetch('/api/system/info',{cache:'no-store',signal:ctrl.signal}).then(function(r){return r.json();}).then(function(d){
-      clearTimeout(to);
-      var nb=(d&&d.info)?d.info.boot_id:undefined;
-      /* reachable again: reload if boot_id changed, or if we never had one */
-      if(was==null||(nb!=null&&nb!==was)){g_watching=false;location.reload();return;}
-      setTimeout(poll,1500);
-    }).catch(function(){clearTimeout(to);setTimeout(poll,1500);});
-  }
-  setTimeout(poll,1500);
-}
-
-/* ── auth / token plumbing ─────────────────────────────────── */
-function getToken(){try{return sessionStorage.getItem('apToken')||'';}catch(e){return '';}}
-function setToken(t){try{if(t){sessionStorage.setItem('apToken',t);}else{sessionStorage.removeItem('apToken');}}catch(e){}}
-/* authFetch: adds X-Auth-Token to every request; a 401 clears the token
-   and drops the user back to the login screen. Use for all mutating calls. */
-async function authFetch(url,opts){
-  opts=opts||{};var h=Object.assign({},opts.headers||{});var t=getToken();
-  if(t)h['X-Auth-Token']=t;opts.headers=h;
-  var r=await fetch(url,opts);
-  if(r.status===401){setToken('');showLogin();}
-  return r;
-}
-/* the /ws/logs WebSocket can't carry headers, so /logs gets ?token=… */
-function wsUrl(){var t=getToken();return '/logs'+(t?('?token='+encodeURIComponent(t)):'');}
-
-/* ── view state machine ────────────────────────────────────── */
-function showView(id){
-  ['view-onboard','view-login','view-panel'].forEach(function(v){
-    document.getElementById(v).hidden=(v!==id);});
-}
-
-/* ── panel tab controller ──────────────────────────────────────
-   Toggles the visible .tab section and the active state on both the
-   desktop sidebar nav and the mobile bottom bar. The choice persists
-   in sessionStorage so it survives reloads (incl. reboot auto-reload). */
-var TABS=['lecture','effets','reglages','systeme'];
-function setTab(name){
-  if(TABS.indexOf(name)<0)name='lecture';
-  try{sessionStorage.setItem('apTab',name);}catch(e){}
-  document.querySelectorAll('#view-panel .tab').forEach(function(s){
-    s.classList.toggle('active',s.dataset.tab===name);});
-  document.querySelectorAll('.side-nav .nav-item,.tabbar .tb-item').forEach(function(b){
-    b.classList.toggle('active',b.dataset.tab===name);});
-}
-function getTab(){try{return sessionStorage.getItem('apTab')||'lecture';}catch(e){return 'lecture';}}
-function showLogin(){showView('view-login');var p=document.getElementById('login-pw');if(p){p.value='';setTimeout(function(){p.focus();},60);}}
-function showPanel(){
-  showView('view-panel');
-  setTab(getTab());                       /* restore last-viewed tab */
-  var ll=document.getElementById('logs-link');if(ll)ll.href=wsUrl();
-  loadGain();loadTone();loadArgb();loadButtons();loadProtection();loadInfo();loadNowPlaying();loadMqtt();
-  if(!showPanel._iv)showPanel._iv=setInterval(function(){loadInfo();loadMqtt();},30000);
-  /* poll now-playing more often while the panel is visible */
-  if(!showPanel._npiv)showPanel._npiv=setInterval(function(){
-    if(!document.getElementById('view-panel').hidden&&!document.hidden)loadNowPlaying();
-  },5000);
-  /* tick the progress bar forward between polls so it advances smoothly */
-  if(!showPanel._npt)showPanel._npt=setInterval(npRender,1000);
-}
-/* bootstrap: pick exactly one view from /api/auth/status */
-async function bootstrap(){
-  try{
-    var h={};var t=getToken();if(t)h['X-Auth-Token']=t;
-    var r=await fetch('/api/auth/status',{headers:h,cache:'no-store'});
-    var d=await r.json();
-    if(!d.hasPassword){showView('view-onboard');obGoto(1);return;}
-    if(d.authed){showPanel();return;}
-    showLogin();
-  }catch(e){
-    /* if status fails, default to login if we think a password may exist,
-       else show onboarding so a fresh device can still be set up */
-    showLogin();
-  }
-}
-
-/* ── login ─────────────────────────────────────────────────── */
-async function doLogin(){
-  var p=document.getElementById('login-pw').value;
-  if(!p){msg('login-msg','Saisis le mot de passe','err');return;}
-  try{
-    var r=await fetch('/api/auth/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:p})});
-    var d=await r.json();
-    if(r.ok&&d.success){setToken(d.token);bootstrap();}
-    else if(d&&d.error==='no_password'){bootstrap();}
-    else{msg('login-msg','Mot de passe incorrect','err');}
-  }catch(e){msg('login-msg','Erreur de connexion','err');}
-}
-
-/* ── onboarding wizard ─────────────────────────────────────── */
-var OB_STEP=1,OB_MAX=5;
-function obGoto(n){
-  OB_STEP=n;
-  document.querySelectorAll('#view-onboard .step').forEach(function(s){
-    s.classList.toggle('active',parseInt(s.dataset.step,10)===n);});
-  var dots=document.querySelectorAll('#ob-steps .s');
-  dots.forEach(function(d,i){var k=i+1;d.className='s'+(k===n?' on':(k<n?' done':''));});
-}
-function obBack(){if(OB_STEP>1)obGoto(OB_STEP-1);}
-function obNext(){
-  /* validate the step we're leaving */
-  if(OB_STEP===3){
-    var p=document.getElementById('ob-pw').value,p2=document.getElementById('ob-pw2').value;
-    if(p.length<4){msg('ob-pw-msg','Au moins 4 caractères','err');return;}
-    if(p!==p2){msg('ob-pw-msg','Les mots de passe ne correspondent pas','err');return;}
-  }
-  if(OB_STEP<OB_MAX)obGoto(OB_STEP+1);
-}
-/* reuse the panel's scan-poll logic, just targeting the onboarding fields */
-function obScan(){scanPoll('ob-wifi-list','ob-ssid','ob-wpass');}
-async function obFinish(){
-  var name=document.getElementById('ob-name').value.trim();
-  var pw=document.getElementById('ob-pw').value;
-  var pw2=document.getElementById('ob-pw2').value;
-  var ssid=document.getElementById('ob-ssid').value.trim();
-  var wpass=document.getElementById('ob-wpass').value;
-  /* revalidate password (in case the user skipped back) */
-  if(pw.length<4||pw!==pw2){obGoto(3);msg('ob-pw-msg','Mot de passe invalide','err');return;}
-  if(!ssid){msg('ob-wifi-msg','Choisis un réseau WiFi','err');return;}
-  obGoto(5);
-  try{
-    /* 1· set admin password + get token */
-    var r=await fetch('/api/auth/setup',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:pw})});
-    var d=await r.json();
-    if(!r.ok||!d.success){
-      document.getElementById('ob-done-msg').textContent='Impossible de définir le mot de passe. Réessaie.';
-      setTimeout(function(){obGoto(3);},1800);return;
-    }
-    setToken(d.token);
-    /* 2· device name (best-effort) */
-    if(name){
-      try{await authFetch('/api/device/name',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:name})});}catch(e){}
-    }
-    /* 3· wifi config — the device reboots right after this */
-    try{await authFetch('/api/wifi/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ssid:ssid,password:wpass})});}catch(e){}
-    document.getElementById('ob-done-msg').textContent="L'appareil redémarre et rejoint ton WiFi — rechargement automatique.";
-    watchReboot(null);
-  }catch(e){
-    document.getElementById('ob-done-msg').textContent='Une erreur est survenue pendant la configuration.';
-  }
-}
-/* render a network list into listId; clicking a row fills ssidId/passId */
-function renderNets(nets,listId,ssidId,passId){
-  var l=document.getElementById(listId);l.innerHTML='';
-  nets.forEach(function(n){
-    var i=document.createElement('div');i.className='wifi-item';
-    var sp=document.createElement('span');sp.className='ssid';sp.textContent=n.ssid;
-    var br=document.createElement('span');br.className='bars';br.textContent=n.rssi+' dBm';
-    i.appendChild(sp);i.appendChild(br);
-    i.onclick=function(){l.querySelectorAll('.wifi-item').forEach(function(x){x.classList.remove('sel');});i.classList.add('sel');document.getElementById(ssidId).value=n.ssid;document.getElementById(passId).focus();};
-    l.appendChild(i);});}
-/* Scanning briefly drops the WiFi link, so we poll: the board returns
-   {scanning:true} immediately, then {scanning:false,networks:[…]} once done.
-   Failed polls during the blip are ignored and retried. Reusable across views. */
-var g_scanning=false;
-function scanPoll(listId,ssidId,passId){
-  /* ignore rapid repeated clicks while a scan is already polling */
-  if(g_scanning)return;
-  g_scanning=true;
-  var l=document.getElementById(listId);
-  l.innerHTML='<div class="msg info">Recherche en cours… (la connexion peut clignoter)</div>';
-  var tries=0;
-  function done(){g_scanning=false;}
-  function next(){if(tries<16){setTimeout(poll,1200);}else{l.innerHTML='<div class="msg err">Délai dépassé — réessaie</div>';done();}}
-  function poll(){
-    tries++;
-    /* timeout par requête : pendant le blip du scan un fetch peut rester bloqué
-       (pas de timeout natif), on l'abandonne après 2,5s et on continue. */
-    var ctrl=new AbortController();var to=setTimeout(function(){ctrl.abort();},2500);
-    authFetch('/api/wifi/scan',{cache:'no-store',signal:ctrl.signal}).then(function(r){return r.json();}).then(function(d){
-      clearTimeout(to);
-      if(d&&d.scanning===false){
-        if(d.networks&&d.networks.length>0){renderNets(d.networks,listId,ssidId,passId);}
-        else{l.innerHTML='<div class="msg info">Aucun réseau trouvé</div>';}
-        done();return;
-      }
-      next();
-    }).catch(function(){clearTimeout(to);next();});
-  }
-  poll();}
-function scanWiFi(){scanPoll('wifi-list','wifi-ssid','wifi-pass');}
-async function saveWiFi(){
-  var s=document.getElementById('wifi-ssid').value.trim();var p=document.getElementById('wifi-pass').value;
-  if(!s){msg('wifi-msg','Saisis un nom de réseau','err');return;}
-  try{var r=await authFetch('/api/wifi/config',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ssid:s,password:p})});
-    var d=await r.json();if(d.success){watchReboot('wifi-msg');}else{msg('wifi-msg',d.error,'err');}}
-  catch(e){msg('wifi-msg','Erreur','err');}}
-async function saveName(){
-  var n=document.getElementById('dev-name').value.trim();if(!n){msg('name-msg','Saisis un nom','err');return;}
-  try{var r=await authFetch('/api/device/name',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:n})});
-    var d=await r.json();if(d.success){msg('name-msg','Enregistré — redémarre pour appliquer','ok');loadInfo();}else{msg('name-msg',d.error,'err');}}
-  catch(e){msg('name-msg','Erreur','err');}}
-function setFill(v){document.getElementById('gain-slider').style.setProperty('--p',v+'%');document.getElementById('gain-val').textContent=v;}
-async function loadGain(){
-  try{var r=await fetch('/api/audio/gain');var d=await r.json();
-    if(typeof d.gain==='number'){document.getElementById('gain-slider').value=d.gain;setFill(d.gain);}}
-  catch(e){}}
-async function saveGain(v){
-  try{var r=await authFetch('/api/audio/gain',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({gain:v})});
-    var d=await r.json();if(d.success){msg('gain-msg','Réglé à '+d.gain+'%','ok');}else{msg('gain-msg',d.error||'Erreur','err');}}
-  catch(e){msg('gain-msg','Erreur','err');}}
-/* nudge the master output gain by ±5 via /api/volume; the board clamps + persists
-   and returns the new value, which we mirror onto the slider/readout/fill. */
-async function nudgeVol(dir){
-  var ids=['vol-up','vol-down','np-vup','np-vdown'];
-  ids.forEach(function(i){var b=document.getElementById(i);if(b)b.disabled=true;});
-  try{
-    var r=await authFetch('/api/volume',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({dir:dir})});
-    var d=await r.json();
-    if(d.success&&typeof d.gain==='number'){document.getElementById('gain-slider').value=d.gain;setFill(d.gain);}
-    else{msg('gain-msg',(d&&d.error)||'Erreur','err');}
-  }catch(e){msg('gain-msg','Erreur','err');}
-  finally{ids.forEach(function(i){var b=document.getElementById(i);if(b)b.disabled=false;});}
-}
-
-/* ── now playing (latest AirPlay metadata, open endpoint) ──────── */
-var npPos=0,npDur=0,npAt=0,npOn=false;
-function fmtT(s){s=Math.max(0,Math.floor(s));var m=Math.floor(s/60);var x=s%60;return m+':'+(x<10?'0':'')+x;}
-function npRender(){
-  var pe=document.getElementById('np-prog');if(!pe)return;
-  if(!(npOn&&npDur>0)){pe.style.display='none';return;}
-  var cur=npPos+(Date.now()-npAt)/1000;if(cur>npDur)cur=npDur;
-  pe.style.display='';
-  document.getElementById('np-bar-fill').style.width=(100*cur/npDur).toFixed(1)+'%';
-  document.getElementById('np-pos').textContent=fmtT(cur);
-  document.getElementById('np-dur').textContent=fmtT(npDur);
-}
-function loadNowPlaying(){
-  fetch('/api/nowplaying',{cache:'no-store'}).then(function(r){return r.json();}).then(function(d){
-    var playing=!!(d&&d.playing);
-    var t=(d&&d.title)?String(d.title):'';
-    var a=(d&&d.artist)?String(d.artist):'';
-    var al=(d&&d.album)?String(d.album):'';
-    npOn=playing;npDur=(d&&d.duration)?d.duration:0;npPos=(d&&d.position)?d.position:0;npAt=Date.now();
-    document.getElementById('np-empty').style.display=playing?'none':'';
-    document.getElementById('np-info').style.display=playing?'':'none';
-    if(playing){
-      document.getElementById('np-title').textContent=t||'Lecture en cours';
-      document.getElementById('np-artist').textContent=a;
-      document.getElementById('np-album').textContent=al;
-      npRender();
-    }
-  }).catch(function(){});
-}
-
-/* ── effets lumineux (bande LED ARGB / WS2812) ───────────────── */
-function agDim(){
-  /* visually dim effect + brightness + count when the strip is off */
-  var on=document.getElementById('ag-enabled').checked;
-  document.getElementById('ag-effect').classList.toggle('dimmed',!on);
-  document.getElementById('ag-color-fg').classList.toggle('dimmed',!on);
-  document.getElementById('ag-speed-fg').classList.toggle('dimmed',!on);
-  document.getElementById('ag-br-fg').classList.toggle('dimmed',!on);
-  document.getElementById('ag-count-fg').classList.toggle('dimmed',!on);
-}
-async function loadArgb(){
-  try{var r=await fetch('/api/argb');var d=await r.json();
-    if(typeof d.enabled==='boolean')document.getElementById('ag-enabled').checked=d.enabled;
-    if(typeof d.effect==='number')document.getElementById('ag-effect').value=String(d.effect);
-    if(typeof d.brightness==='number'){var b=document.getElementById('ag-br');b.value=d.brightness;document.getElementById('ag-br-val').textContent=d.brightness;b.style.setProperty('--p',(d.brightness/255*100)+'%');}
-    if(typeof d.count==='number')document.getElementById('ag-count').value=d.count;
-    if(typeof d.gpio==='number')document.getElementById('ag-gpio').value=d.gpio;
-    if(typeof d.color==='number')document.getElementById('ag-color').value='#'+('000000'+(d.color>>>0).toString(16)).slice(-6);
-    if(typeof d.speed==='number'){var sp=document.getElementById('ag-speed');sp.value=d.speed;document.getElementById('ag-speed-val').textContent=d.speed;sp.style.setProperty('--p',((d.speed-1)/9*100)+'%');}
-    agDim();}
-  catch(e){}}
-function agGpio(){var v=parseInt(document.getElementById('ag-gpio').value,10);if(isNaN(v)||v<-1)v=-1;if(v>48)v=48;return v;}
-function agCount(){var v=parseInt(document.getElementById('ag-count').value,10);if(isNaN(v)||v<1)v=1;if(v>300)v=300;return v;}
-async function saveArgb(){
-  var body={
-    enabled:document.getElementById('ag-enabled').checked,
-    effect:parseInt(document.getElementById('ag-effect').value,10)||0,
-    brightness:parseInt(document.getElementById('ag-br').value,10)||0,
-    count:agCount(),gpio:agGpio(),
-    color:parseInt(document.getElementById('ag-color').value.slice(1),16)||0,
-    speed:parseInt(document.getElementById('ag-speed').value,10)||5
-  };
-  try{var r=await authFetch('/api/argb',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    var d=await r.json();if(d.success){msg('ag-msg','Enregistré','ok');}else{msg('ag-msg',d.error||'Erreur','err');}}
-  catch(e){msg('ag-msg','Erreur','err');}}
-
-/* ── égaliseur tonalité 3 bandes (logiciel, biquads RBJ côté firmware) ── */
-/* presets: {hpf(Hz),bass,mid,treble(dB)}, conformes au contrat partagé.
-   hpf absent => 0 (pas de filtre anti-graves). */
-var EQ_PRESETS={
-  flat:{hpf:0,bass:0,mid:0,treble:0},
-  bass:{hpf:0,bass:6,mid:0,treble:1},
-  voice:{hpf:0,bass:-3,mid:4,treble:2},
-  pop:{hpf:0,bass:4,mid:-1,treble:3},
-  live:{hpf:0,bass:3,mid:1,treble:3},
-  sat:{hpf:120,bass:-3,mid:0,treble:2}
-};
-function eqFill(id,v){
-  /* −12..+12 → 0..100% pour le remplissage iOS (--p) */
-  var p=Math.round((parseInt(v,10)+12)/24*100);
-  var s=document.getElementById(id);s.style.setProperty('--p',p+'%');
-  document.getElementById(id+'-val').textContent=(v>0?'+':'')+v;
-}
-function eqSetSliders(b,m,t){
-  var bs=document.getElementById('eq-bass'),ms=document.getElementById('eq-mid'),ts=document.getElementById('eq-treble');
-  bs.value=b;ms.value=m;ts.value=t;eqFill('eq-bass',b);eqFill('eq-mid',m);eqFill('eq-treble',t);
-}
-function eqDim(){
-  /* estompe les bandes quand l'égaliseur est coupé */
-  var on=document.getElementById('eq-on').checked;
-  document.getElementById('eq-preset').classList.toggle('dimmed',!on);
-  document.getElementById('eq-hpf').classList.toggle('dimmed',!on);
-  document.getElementById('eq-bands').classList.toggle('dimmed',!on);
-}
-/* trouve le préréglage correspondant aux 3 gains + hpf, sinon 'perso' */
-function eqMatchPreset(b,m,t,h){
-  for(var k in EQ_PRESETS){var p=EQ_PRESETS[k];if(p.bass===b&&p.mid===m&&p.treble===t&&p.hpf===h)return k;}
-  return 'perso';
-}
-async function loadTone(){
-  try{var r=await fetch('/api/tone');var d=await r.json();
-    var on=!!(d&&d.enabled);
-    var b=(d&&typeof d.bass==='number')?d.bass:0;
-    var m=(d&&typeof d.mid==='number')?d.mid:0;
-    var t=(d&&typeof d.treble==='number')?d.treble:0;
-    var h=(d&&typeof d.hpf==='number')?d.hpf:0;
-    document.getElementById('eq-on').checked=on;
-    eqSetSliders(b,m,t);
-    document.getElementById('eq-hpf').value=String(h);
-    document.getElementById('eq-preset').value=eqMatchPreset(b,m,t,h);
-    eqDim();}
-  catch(e){}}
-async function saveTone(){
-  var body={
-    enabled:document.getElementById('eq-on').checked,
-    bass:parseInt(document.getElementById('eq-bass').value,10)||0,
-    mid:parseInt(document.getElementById('eq-mid').value,10)||0,
-    treble:parseInt(document.getElementById('eq-treble').value,10)||0,
-    hpf:parseInt(document.getElementById('eq-hpf').value,10)||0
-  };
-  try{var r=await authFetch('/api/tone',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    var d=await r.json();if(d.success){msg('eq-msg','Enregistré','ok');}else{msg('eq-msg',d.error||'Erreur','err');}}
-  catch(e){msg('eq-msg','Erreur','err');}}
-
-/* ── boutons physiques (GPIO configurables, applique au redémarrage) ── */
-function btnPin(id){var v=parseInt(document.getElementById(id).value,10);if(isNaN(v)||v<-1)v=-1;if(v>48)v=48;return v;}
-async function loadButtons(){
-  try{var r=await fetch('/api/buttons');var d=await r.json();
-    if(typeof d.playpause==='number')document.getElementById('btn-pp').value=d.playpause;
-    if(typeof d.volup==='number')document.getElementById('btn-vu').value=d.volup;
-    if(typeof d.voldown==='number')document.getElementById('btn-vd').value=d.voldown;
-    if(typeof d.next==='number')document.getElementById('btn-nx').value=d.next;
-    if(typeof d.prev==='number')document.getElementById('btn-pv').value=d.prev;}
-  catch(e){}}
-async function saveButtons(){
-  var body={
-    playpause:btnPin('btn-pp'),volup:btnPin('btn-vu'),voldown:btnPin('btn-vd'),
-    next:btnPin('btn-nx'),prev:btnPin('btn-pv')
-  };
-  try{var r=await authFetch('/api/buttons',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    var d=await r.json();
-    if(d.success){msg('btn-msg','Enregistré — redémarre pour appliquer (Système → Redémarrer)','ok');}
-    else{msg('btn-msg',d.error||'Erreur','err');}}
-  catch(e){msg('btn-msg','Erreur','err');}}
-/* ── protection & ampli (limiteur logiciel + veille ampli GPIO) ── */
-function prCeilFill(v){
-  /* −12..0 dB → 0..100% pour le remplissage iOS (--p) */
-  var p=Math.round((parseInt(v,10)+12)/12*100);
-  var s=document.getElementById('pr-ceil');s.style.setProperty('--p',p+'%');
-  document.getElementById('pr-ceil-val').textContent=v;
-}
-function prDim(){
-  /* estompe le plafond quand le limiteur est coupé */
-  var on=document.getElementById('pr-lim').checked;
-  document.getElementById('pr-ceil-fg').classList.toggle('dimmed',!on);
-}
-function prGpio(){var v=parseInt(document.getElementById('pr-ampgpio').value,10);if(isNaN(v)||v<-1)v=-1;if(v>48)v=48;return v;}
-async function loadProtection(){
-  try{var r=await fetch('/api/protection');var d=await r.json();
-    if(typeof d.limEnabled==='boolean')document.getElementById('pr-lim').checked=d.limEnabled;
-    var c=(d&&typeof d.limCeiling==='number')?d.limCeiling:-1;
-    document.getElementById('pr-ceil').value=c;prCeilFill(c);
-    if(typeof d.ampGpio==='number')document.getElementById('pr-ampgpio').value=d.ampGpio;
-    if(typeof d.ampActiveHigh==='boolean')document.getElementById('pr-acth').checked=d.ampActiveHigh;
-    if(typeof d.ampStandbyMin==='number')document.getElementById('pr-standby').value=String(d.ampStandbyMin);
-    if(typeof d.channel==='number')document.getElementById('pr-chan').value=String(d.channel);
-    prDim();}
-  catch(e){}}
-async function saveProtection(){
-  var body={
-    limEnabled:document.getElementById('pr-lim').checked,
-    limCeiling:parseInt(document.getElementById('pr-ceil').value,10)||0,
-    ampGpio:prGpio(),
-    ampActiveHigh:document.getElementById('pr-acth').checked,
-    ampStandbyMin:parseInt(document.getElementById('pr-standby').value,10)||0,
-    channel:parseInt(document.getElementById('pr-chan').value,10)||0
-  };
-  try{var r=await authFetch('/api/protection',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    var d=await r.json();if(d.success){msg('pr-msg','Enregistré','ok');}else{msg('pr-msg',d.error||'Erreur','err');}}
-  catch(e){msg('pr-msg','Erreur','err');}}
-/* ── Home Assistant / MQTT (auto-découverte) ───────────────── */
-/* le mot de passe n'est jamais renvoyé par l'API ; le champ reste vide et
-   n'est envoyé que si l'utilisateur le remplit (sinon on garde l'existant). */
-function mqStatus(connected,enabled){
-  var e=document.getElementById('mq-status');if(!e)return;
-  if(!enabled){e.textContent='Désactivé';e.style.color='var(--txt3)';return;}
-  if(connected){e.textContent='Connecté';e.style.color='var(--green)';}
-  else{e.textContent='Déconnecté';e.style.color='var(--red)';}
-}
-async function loadMqtt(){
-  try{var r=await fetch('/api/mqtt',{cache:'no-store'});var d=await r.json();
-    if(typeof d.enabled==='boolean')document.getElementById('mq-enabled').checked=d.enabled;
-    document.getElementById('mq-host').value=d.host||'';
-    document.getElementById('mq-port').value=(typeof d.port==='number'&&d.port>0)?d.port:1883;
-    document.getElementById('mq-user').value=d.user||'';
-    document.getElementById('mq-pass').value='';
-    mqStatus(!!d.connected,!!d.enabled);}
-  catch(e){}}
-async function saveMqtt(){
-  var body={
-    enabled:document.getElementById('mq-enabled').checked,
-    host:document.getElementById('mq-host').value.trim(),
-    port:parseInt(document.getElementById('mq-port').value,10)||1883,
-    user:document.getElementById('mq-user').value.trim()
-  };
-  /* n'envoie le mot de passe que s'il a été saisi (sinon garde l'existant) */
-  var pw=document.getElementById('mq-pass').value;
-  if(pw)body.pass=pw;
-  try{var r=await authFetch('/api/mqtt',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-    var d=await r.json();
-    if(d.success){msg('mq-msg','Enregistré','ok');document.getElementById('mq-pass').value='';
-      /* relit l'état (la connexion peut prendre un instant) */
-      setTimeout(loadMqtt,1500);}
-    else{msg('mq-msg',d.error||'Erreur','err');}}
-  catch(e){msg('mq-msg','Erreur','err');}}
-async function startOTA(){
-  var f=document.getElementById('fw-file').files[0];if(!f){msg('ota-msg','Choisis un fichier','err');return;}
-  if(f.size<65536){msg('ota-msg','Fichier trop petit — firmware .bin invalide ?','err');return;}
-  document.getElementById('ota-btn').disabled=true;msg('ota-msg','Envoi en cours…','info');
-  try{
-    var r=await authFetch('/api/ota/update',{method:'POST',headers:{'Content-Type':'application/octet-stream'},body:f});
-    if(r.ok){watchReboot('ota-msg');}
-    else{var em='Échec de la mise à jour';try{var d=await r.json();if(d&&d.error)em=d.error;}catch(e){}msg('ota-msg',em,'err');document.getElementById('ota-btn').disabled=false;}
-  }
-  catch(e){msg('ota-msg','Erreur pendant l\'envoi','err');document.getElementById('ota-btn').disabled=false;}}
-async function restart(){
-  if(!confirm('Redémarrer l\'appareil ?'))return;
-  try{await authFetch('/api/system/restart',{method:'POST'});watchReboot('ota-msg');}catch(e){}}
-async function loadInfo(){
-  try{var r=await fetch('/api/system/info');var d=await r.json();
-    if(d.success){var i=d.info;
-      if(i.boot_id){if(g_bootId&&i.boot_id!==g_bootId){location.reload();return;}else{g_bootId=i.boot_id;}}
-      /* paint both the mobile status pill (#status-bar) and the desktop
-         sidebar mirror (#status-bar2) with the same content */
-      function statusBar(cls,txt,ip){
-        ['status-bar','status-bar2'].forEach(function(bid){
-          var b=document.getElementById(bid);if(!b)return;
-          b.className=cls;b.textContent='';
-          var dot=document.createElement('span');dot.className='dot';
-          var t=document.createElement('span');t.className='st-txt';t.textContent=txt;
-          b.appendChild(dot);b.appendChild(t);
-          if(ip!=null){var sip=document.createElement('span');sip.className='st-ip';sip.textContent=ip;b.appendChild(sip);}
-        });
-      }
-      if(i.eth_connected){statusBar('status ok','Ethernet connecté',i.ip);}
-      else if(i.wifi_connected){statusBar('status ok',i.wifi_ssid||'WiFi',i.ip);}
-      else{statusBar('status err','Non connecté — configure le WiFi',null);}
-      if(i.device_name){document.getElementById('hdr-name').textContent=i.device_name;
-        var hn2=document.getElementById('hdr-name2');if(hn2)hn2.textContent=i.device_name;}
-      document.getElementById('info-ip').textContent=i.ip||'–';
-      document.getElementById('info-mac').textContent=i.mac||'–';
-      document.getElementById('info-name').textContent=i.device_name||'–';
-      document.getElementById('info-heap').textContent=i.free_heap?Math.round(i.free_heap/1024)+' Ko':'–';
-      document.getElementById('info-fw').textContent=i.firmware_version||'–';
-      function rssiLabel(x){if(x==null)return '–';var q='';if(x>=-55)q=' · excellent';else if(x>=-65)q=' · bon';else if(x>=-75)q=' · moyen';else q=' · faible';return x+' dBm'+q;}
-      document.getElementById('info-ssid').textContent=i.wifi_ssid||'–';
-      document.getElementById('info-rssi').textContent=rssiLabel(i.wifi_rssi);
-      document.getElementById('info-chan').textContent=i.wifi_channel||'–';
-      document.getElementById('info-phy').textContent=i.wifi_phy||'–';
-      document.getElementById('info-bssid').textContent=i.wifi_bssid||'–';
-      if(i.eq_supported){document.getElementById('eq-card').style.display='';}
-      document.getElementById('dev-name').placeholder=i.device_name||'Mon enceinte';}}catch(e){}}
-window.onload=function(){
-  document.getElementById('fw-file').onchange=function(e){var f=e.target.files[0];
-    document.getElementById('fw-name').textContent=f?f.name:'Aucun fichier';
-    document.getElementById('ota-btn').disabled=!f;};
-  var gs=document.getElementById('gain-slider');
-  gs.oninput=function(){setFill(gs.value);};
-  gs.onchange=function(){saveGain(parseInt(gs.value,10));};
-  /* effets lumineux (bande ARGB): live-save on any change */
-  document.getElementById('ag-enabled').onchange=function(){agDim();saveArgb();};
-  document.getElementById('ag-effect').onchange=saveArgb;
-  var abr=document.getElementById('ag-br');
-  abr.oninput=function(){document.getElementById('ag-br-val').textContent=abr.value;abr.style.setProperty('--p',(abr.value/255*100)+'%');};
-  abr.onchange=saveArgb;
-  document.getElementById('ag-color').onchange=saveArgb;
-  var asp=document.getElementById('ag-speed');
-  asp.oninput=function(){document.getElementById('ag-speed-val').textContent=asp.value;asp.style.setProperty('--p',((asp.value-1)/9*100)+'%');};
-  asp.onchange=saveArgb;
-  ['ag-count','ag-gpio'].forEach(function(id){document.getElementById(id).onchange=saveArgb;});
-  /* égaliseur tonalité: toggle + préréglage + sliders, sauvegarde live */
-  document.getElementById('eq-on').onchange=function(){eqDim();saveTone();};
-  document.getElementById('eq-preset').onchange=function(){
-    var k=this.value;if(k==='perso')return;var p=EQ_PRESETS[k];if(!p)return;
-    eqSetSliders(p.bass,p.mid,p.treble);
-    document.getElementById('eq-hpf').value=String(p.hpf);
-    saveTone();
-  };
-  ['eq-bass','eq-mid','eq-treble'].forEach(function(id){
-    var s=document.getElementById(id);
-    s.oninput=function(){eqFill(id,s.value);document.getElementById('eq-preset').value='perso';};
-    s.onchange=saveTone;
-  });
-  /* filtre anti-graves: changement manuel => recalcule le préréglage, sauvegarde */
-  document.getElementById('eq-hpf').onchange=function(){
-    var b=parseInt(document.getElementById('eq-bass').value,10)||0;
-    var m=parseInt(document.getElementById('eq-mid').value,10)||0;
-    var t=parseInt(document.getElementById('eq-treble').value,10)||0;
-    var h=parseInt(this.value,10)||0;
-    document.getElementById('eq-preset').value=eqMatchPreset(b,m,t,h);
-    saveTone();
-  };
-  /* protection & ampli: sauvegarde live à chaque changement */
-  document.getElementById('pr-lim').onchange=function(){prDim();saveProtection();};
-  var pc=document.getElementById('pr-ceil');
-  pc.oninput=function(){prCeilFill(pc.value);};
-  pc.onchange=saveProtection;
-  document.getElementById('pr-ampgpio').onchange=saveProtection;
-  document.getElementById('pr-acth').onchange=saveProtection;
-  document.getElementById('pr-standby').onchange=saveProtection;
-  document.getElementById('pr-chan').onchange=saveProtection;
-  /* Enter to submit on the auth screens */
-  document.getElementById('login-pw').addEventListener('keydown',function(e){if(e.key==='Enter')doLogin();});
-  document.getElementById('ob-pw2').addEventListener('keydown',function(e){if(e.key==='Enter')obNext();});
-  document.getElementById('ob-name').addEventListener('keydown',function(e){if(e.key==='Enter')obNext();});
-  /* panel data loading + polling now starts inside showPanel() */
-  bootstrap();};
-</script></body></html>
+  <div class='fg' id
